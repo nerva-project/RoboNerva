@@ -11,12 +11,12 @@ from discord.ext import commands
 
 
 if TYPE_CHECKING:
-    from bot import FumeStop
+    from bot import RoboNerva
 
 
 class Error(commands.Cog):
-    def __init__(self, bot: FumeStop):
-        self.bot: FumeStop = bot
+    def __init__(self, bot: RoboNerva):
+        self.bot: RoboNerva = bot
 
     async def cog_load(self):
         await self.global_app_command_error_handler(bot=self.bot)
@@ -67,5 +67,5 @@ class Error(commands.Cog):
                 return await self.bot.webhook.send(embed=embed)
 
 
-async def setup(bot: FumeStop):
+async def setup(bot: RoboNerva):
     await bot.add_cog(Error(bot))
