@@ -4,13 +4,21 @@ from typing import TYPE_CHECKING
 from datetime import datetime, UTC
 
 import aiohttp
+from twikit import Client
 from dateutil.parser import parse
 
 import discord
+from discord import app_commands
 from discord.ext import commands, tasks
+
+from utils.cd import cooldown
+from utils.modals import TweetLinksModal
+from utils.tools import validate_tweet_links
 
 if TYPE_CHECKING:
     from bot import RoboNerva
+
+from config import COMMUNITY_GUILD_ID
 
 
 class AutoPost(commands.Cog):
@@ -29,24 +37,49 @@ class AutoPost(commands.Cog):
         embed = discord.Embed(color=self.bot.embed_color)
 
         embed.set_author(
-            name="Nerva",
-            icon_url="https://raw.githubusercontent.com/nerva-project/resources/master/Logos/GradientBackground/"
-            "nerva-logo-white-on-blue-violet-1024x1024.png",
+            name="RoboNerva",
+            icon_url=self.bot.user.avatar.url,
         )
 
         embed.title = (
             f"{datetime.now(UTC).strftime('%b %d, %Y')} - Vote for Nerva on CML!"
         )
 
-        embed.description = """
-        Interact on X: 
-https://x.com/NervaCurrency/status/1824394199480811528
-https://x.com/R0BC0D3R/status/1824519475640578192
-https://x.com/Evanation81/status/1824563433791950934
+        collection = self.bot.db.get_collection("autopost_tweet_links")
+        data = await collection.find_one({})
 
-Search for crypto related tweets and plug Nerva where appropriate or search for Nerva related posts and interact: 
-https://x.com/search?q=(%23Nerva%20OR%20%24XNV)%20OR%20(%40NervaCurrency)&src=typed_query&f=live
-        """
+        if data:
+            embed.description = f"Interact on X:\n\n{data['tweet_link_1']}\n"
+
+            if data["tweet_link_2"]:
+                embed.description += f"{data['tweet_link_2']}\n"
+
+            if data["tweet_link_3"]:
+                embed.description += f"{data['tweet_link_3']}\n"
+
+            embed.description += "\n"
+
+        else:
+            client = Client("en-US")
+
+            await client.login(
+                auth_info_1=self.bot.config.TWITTER_USERNAME,
+                auth_info_2=self.bot.config.TWITTER_EMAIL,
+                password=self.bot.config.TWITTER_PASSWORD,
+            )
+
+            user = await client.get_user_by_screen_name("NervaCurrency")
+            tweets = await client.get_user_tweets(user.id, "Tweets", count=1)
+
+            embed.description = f"Interact on X:\n\nhttps://x.com/NervaCurrency/status/{tweets[0].id}\n\n"
+
+            await client.logout()
+
+        embed.description += (
+            "Search for crypto related tweets and plug Nerva where appropriate "
+            "or search for Nerva related posts and interact:\n\nhttps://x.com/search"
+            "?q=(%23Nerva%20OR%20%24XNV)%20OR%20(%40NervaCurrency)&src=typed_query&f=live"
+        )
 
         view = discord.ui.View()
 
@@ -63,6 +96,7 @@ https://x.com/search?q=(%23Nerva%20OR%20%24XNV)%20OR%20(%40NervaCurrency)&src=ty
             )
         )
 
+        await collection.delete_many({})
         await channel.send("@everyone", embed=embed, view=view)
 
     @_autopost_vote_reminder.before_loop
@@ -81,9 +115,8 @@ https://x.com/search?q=(%23Nerva%20OR%20%24XNV)%20OR%20(%40NervaCurrency)&src=ty
         embed = discord.Embed(color=self.bot.embed_color)
 
         embed.set_author(
-            name="Nerva",
-            icon_url="https://raw.githubusercontent.com/nerva-project/resources/master/Logos/GradientBackground/"
-            "nerva-logo-white-on-blue-violet-1024x1024.png",
+            name="RoboNerva",
+            icon_url=self.bot.user.avatar.url,
         )
 
         embed.title = f"{datetime.now(UTC).strftime('%b %d, %Y')} - Price Update"
@@ -174,6 +207,51 @@ https://x.com/search?q=(%23Nerva%20OR%20%24XNV)%20OR%20(%40NervaCurrency)&src=ty
     def cog_unload(self) -> None:
         self._autopost_vote_reminder.cancel()
         self._autopost_price_update.cancel()
+
+    @app_commands.command(name="upload")
+    @app_commands.guilds(COMMUNITY_GUILD_ID)
+    @app_commands.checks.dynamic_cooldown(cooldown)
+    async def _upload(self, ctx: discord.Interaction):
+        """Update tweet links for daily tasks autopost."""
+        if not await self.bot.is_owner(ctx.user):
+            # noinspection PyUnresolvedReferences
+            return await ctx.response.send_message(
+                content="You are not authorized to use this command."
+            )
+
+        modal = TweetLinksModal()
+        modal.ctx = ctx
+
+        # noinspection PyUnresolvedReferences
+        await ctx.response.send_modal(modal)
+        res = await modal.wait()
+
+        if res:
+            return
+
+        if not validate_tweet_links(
+            [
+                modal.tweet_link_1.value,
+                modal.tweet_link_2.value,
+                modal.tweet_link_3.value,
+            ]
+        ):
+            return await modal.interaction.edit_original_response(
+                content="Invalid tweet links! Please try again."
+            )
+
+        collection = self.bot.db.get_collection("autopost_tweet_links")
+        await collection.insert_one(
+            {
+                "tweet_link_1": modal.tweet_link_1.value,
+                "tweet_link_2": modal.tweet_link_2.value,
+                "tweet_link_3": modal.tweet_link_3.value,
+            }
+        )
+
+        return await modal.interaction.edit_original_response(
+            content="Tweet links have been saved."
+        )
 
 
 async def setup(bot: RoboNerva):

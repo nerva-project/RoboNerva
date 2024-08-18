@@ -1,13 +1,17 @@
 from __future__ import annotations
 
-import click
+import sys
 import logging
 import asyncio
 import contextlib
 from datetime import datetime
 
+import click
+import motor.motor_asyncio
+
 import discord
 
+from config import MONGODB_URI
 from bot import RoboNerva
 
 try:
@@ -19,6 +23,10 @@ except ImportError:
 
 else:
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+
+
+async def setup_database() -> motor.motor_asyncio.AsyncIOMotorClient:
+    return motor.motor_asyncio.AsyncIOMotorClient(MONGODB_URI)
 
 
 class RemoveNoise(logging.Filter):
@@ -62,8 +70,18 @@ def setup_logging():
 async def run_bot():
     log = logging.getLogger()
 
+    client = await setup_database()
+
+    try:
+        client.admin.command("ping")
+
+    except Exception as e:
+        click.echo("Could not set up MongoDB. Exiting.", file=sys.stderr)
+        return log.exception(f"Could not set up MongoDB. {e}")
+
     async with RoboNerva() as bot:
         bot.log = log
+        bot.db = client.get_database("RoboNerva")
         await bot.start()
 
 

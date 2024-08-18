@@ -6,6 +6,7 @@ from datetime import datetime
 from itertools import cycle
 
 import aiohttp
+import motor
 
 import discord
 from discord.ext import commands
@@ -15,6 +16,7 @@ import config
 
 class RoboNerva(commands.AutoShardedBot):
     user: discord.ClientUser
+    db: motor.MotorDatabase
     bot_app_info: discord.AppInfo
     session: aiohttp.ClientSession
     log: logging.Logger
@@ -24,6 +26,7 @@ class RoboNerva(commands.AutoShardedBot):
 
         intents = discord.Intents.all()
 
+        # noinspection PyTypeChecker
         super().__init__(
             command_prefix=commands.when_mentioned,
             description=description,
