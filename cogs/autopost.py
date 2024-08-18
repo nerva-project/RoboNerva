@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from datetime import datetime, UTC
 
 import aiohttp
-from twikit import Client
+import twikit
 from dateutil.parser import parse
 
 import discord
@@ -60,20 +60,24 @@ class AutoPost(commands.Cog):
             embed.description += "\n"
 
         else:
-            client = Client("en-US")
+            try:
+                client = twikit.Client("en-US")
 
-            await client.login(
-                auth_info_1=self.bot.config.TWITTER_USERNAME,
-                auth_info_2=self.bot.config.TWITTER_EMAIL,
-                password=self.bot.config.TWITTER_PASSWORD,
-            )
+                await client.login(
+                    auth_info_1=self.bot.config.TWITTER_USERNAME,
+                    auth_info_2=self.bot.config.TWITTER_EMAIL,
+                    password=self.bot.config.TWITTER_PASSWORD,
+                )
 
-            user = await client.get_user_by_screen_name("NervaCurrency")
-            tweets = await client.get_user_tweets(user.id, "Tweets", count=1)
+                user = await client.get_user_by_screen_name("NervaCurrency")
+                tweets = await client.get_user_tweets(user.id, "Tweets", count=1)
 
-            embed.description = f"Interact on X:\n\nhttps://x.com/NervaCurrency/status/{tweets[0].id}\n\n"
+                post_id = tweets[0].id
 
-            await client.logout()
+            except twikit.TwitterException:
+                post_id = self.bot.config.FALLBACK_TWEET_ID
+
+            embed.description = f"Interact on X:\n\nhttps://x.com/NervaCurrency/status/{post_id}\n\n"
 
         embed.description += (
             "Search for crypto related tweets and plug Nerva where appropriate "

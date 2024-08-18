@@ -40,7 +40,7 @@ class Network(commands.Cog):
                 embed.add_field(name="Height", value=data["height"])
                 embed.add_field(name="Difficulty", value=data["difficulty"])
                 embed.add_field(
-                    name="Hashrate", value=calculate_hashrate(data["difficulty"])
+                    name="Network Hashrate", value=calculate_hashrate(data["difficulty"])
                 )
                 embed.add_field(name="", value="")
                 embed.add_field(
@@ -48,7 +48,7 @@ class Network(commands.Cog):
                     value=calculate_database_size(data["database_size"]),
                 )
                 embed.add_field(
-                    name="Top Block",
+                    name="Top Block Hash",
                     value=f"[`{data['top_block_hash']}`]"
                     f"(https://explorer.nerva.one/detail/{data['top_block_hash']})",
                     inline=False,
@@ -122,6 +122,51 @@ class Network(commands.Cog):
             content=f"The current network hashrate is `{hashrate}`."
         )
 
+    @app_commands.command(name="supply")
+    @app_commands.guilds(COMMUNITY_GUILD_ID)
+    @app_commands.checks.dynamic_cooldown(cooldown)
+    async def _supply(self, ctx: discord.Interaction):
+        """Shows the current circulating supply."""
+        # noinspection PyUnresolvedReferences
+        await ctx.response.defer(thinking=True)
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get("https://api.nerva.one/daemon/get_generated_coins/") as res:
+                supply = await res.json()
+
+        await ctx.edit_original_response(
+            content=f"The current circulating supply is `{supply} XNV`."
+        )
+
+    @app_commands.command(name="seed")
+    @app_commands.guilds(COMMUNITY_GUILD_ID)
+    @app_commands.checks.dynamic_cooldown(cooldown)
+    async def _seed(self, ctx: discord.Interaction):
+        """Shows information about the seed node."""
+        # noinspection PyUnresolvedReferences
+        await ctx.response.defer(thinking=True)
+
+        embed = discord.Embed(color=self.bot.embed_color)
+        embed.title = "Seed Node Information"
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get("https://api.nerva.one/daemon/get_info/") as res:
+                data = (await res.json())["result"]
+
+                embed.add_field(name="Version", value=data["version"])
+                embed.add_field(name="Height", value=f"{data['height']}/{data['target_height']}")
+                embed.add_field(name="Incoming Connections", value=data["incoming_connections_count"])
+                embed.add_field(name="Outgoing Connections", value=data["outgoing_connections_count"])
+                embed.add_field(name="Network Hashrate", value=calculate_hashrate(data["difficulty"]))
+                embed.add_field(
+                    name="Top Block Hash",
+                    value=f"[`{data['top_block_hash']}`]"
+                          f"(https://explorer.nerva.one/detail/{data['top_block_hash']})",
+                    inline=False,
+                )
+
+        await ctx.edit_original_response(embed=embed)
+
     @app_commands.command(name="lastblock")
     @app_commands.guilds(COMMUNITY_GUILD_ID)
     @app_commands.checks.dynamic_cooldown(cooldown)
@@ -165,6 +210,43 @@ class Network(commands.Cog):
                     f"(https://explorer.nerva.one/detail/{data['miner_tx_hash']})",
                     inline=False,
                 )
+
+        await ctx.edit_original_response(embed=embed)
+
+    @app_commands.command(name="inflation")
+    @app_commands.guilds(COMMUNITY_GUILD_ID)
+    @app_commands.checks.dynamic_cooldown(cooldown)
+    async def _inflation(self, ctx: discord.Interaction):
+        """Shows the current inflation rate."""
+        # noinspection PyUnresolvedReferences
+        await ctx.response.defer(thinking=True)
+
+        new_xnv_per_year = 157788
+        new_xnv_per_month = 13149
+        new_xnv_per_week = 3024
+        new_xnv_per_day = 432
+
+        embed = discord.Embed(color=self.bot.embed_color)
+        embed.title = "Nerva Inflation Information"
+        embed.description = ("<:nerva:1274417479606603776> is already in tail emission which means that each block has "
+                             "0.3 XNV (+ transaction fee) miner reward. **Below numbers are estimates.**")
+
+        embed.set_author(name="RoboNerva", icon_url=self.bot.user.avatar.url)
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get("https://api.nerva.one/daemon/get_generated_coins/") as res:
+                coins = await res.json()
+
+                embed.add_field(
+                    name="Current Annual Inflation Percentage",
+                    value=f"{(new_xnv_per_year/coins) * 100:.3f}%",
+                    inline=False,
+                )
+
+                embed.add_field(name="New XNV per year", value=new_xnv_per_year)
+                embed.add_field(name="New XNV per month", value=new_xnv_per_month)
+                embed.add_field(name="New XNV per week", value=new_xnv_per_week)
+                embed.add_field(name="New XNV per day", value=new_xnv_per_day)
 
         await ctx.edit_original_response(embed=embed)
 
