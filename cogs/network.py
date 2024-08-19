@@ -41,7 +41,7 @@ class Network(commands.Cog):
         embed.set_author(name="Nerva", icon_url=self.bot.user.avatar.url)
 
         async with aiohttp.ClientSession() as session:
-            async with session.get("https://api.nerva.one/daemon/get_info/") as res:
+            async with session.get(f"{self.bot.api_url}/daemon/get_info/") as res:
                 data = (await res.json())["result"]
 
                 embed.add_field(name="Height", value=data["height"])
@@ -63,7 +63,7 @@ class Network(commands.Cog):
                 )
 
             async with session.get(
-                "https://api.nerva.one/daemon/get_last_block_header/"
+                f"{self.bot.api_url}/daemon/get_last_block_header/"
             ) as res:
                 data = (await res.json())["result"]["block_header"]
 
@@ -85,7 +85,7 @@ class Network(commands.Cog):
         await ctx.response.defer(thinking=True)
 
         async with aiohttp.ClientSession() as session:
-            async with session.get("https://api.nerva.one/daemon/get_info/") as res:
+            async with session.get(f"{self.bot.api_url}/daemon/get_info/") as res:
                 data = (await res.json())["result"]
 
                 height = data["height"]
@@ -103,7 +103,7 @@ class Network(commands.Cog):
         await ctx.response.defer(thinking=True)
 
         async with aiohttp.ClientSession() as session:
-            async with session.get("https://api.nerva.one/daemon/get_info/") as res:
+            async with session.get(f"{self.bot.api_url}/daemon/get_info/") as res:
                 data = (await res.json())["result"]
 
                 difficulty = data["difficulty"]
@@ -121,7 +121,7 @@ class Network(commands.Cog):
         await ctx.response.defer(thinking=True)
 
         async with aiohttp.ClientSession() as session:
-            async with session.get("https://api.nerva.one/daemon/get_info/") as res:
+            async with session.get(f"{self.bot.api_url}/daemon/get_info/") as res:
                 data = (await res.json())["result"]
 
                 hashrate = calculate_hashrate(data["difficulty"])
@@ -140,7 +140,7 @@ class Network(commands.Cog):
 
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                "https://api.nerva.one/daemon/get_generated_coins/"
+                f"{self.bot.api_url}/daemon/get_generated_coins/"
             ) as res:
                 supply = await res.json()
 
@@ -184,7 +184,7 @@ class Network(commands.Cog):
         embed.title = "Seed Node Information"
 
         async with aiohttp.ClientSession() as session:
-            async with session.get("https://api.nerva.one/daemon/get_info/") as res:
+            async with session.get(f"{self.bot.api_url}/daemon/get_info/") as res:
                 data = (await res.json())["result"]
 
                 embed.add_field(name="Version", value=data["version"])
@@ -226,7 +226,7 @@ class Network(commands.Cog):
 
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                "https://api.nerva.one/daemon/get_last_block_header/"
+                f"{self.bot.api_url}/daemon/get_last_block_header/"
             ) as res:
                 data = (await res.json())["result"]["block_header"]
 
@@ -282,7 +282,7 @@ class Network(commands.Cog):
 
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                "https://api.nerva.one/daemon/get_generated_coins/"
+                f"{self.bot.api_url}/daemon/get_generated_coins/"
             ) as res:
                 coins = await res.json()
 
@@ -308,7 +308,7 @@ class Network(commands.Cog):
         await ctx.response.defer(thinking=True)
 
         async with aiohttp.ClientSession() as session:
-            async with session.get("https://api.nerva.one/daemon/get_bans/") as res:
+            async with session.get(f"{self.bot.api_url}/daemon/get_bans/") as res:
                 bans = (await res.json())["result"]["bans"]
 
         if not bans:

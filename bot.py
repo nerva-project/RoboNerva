@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import Any
 
+import random
 import logging
 from datetime import datetime
 from itertools import cycle
@@ -131,6 +132,10 @@ class RoboNerva(commands.AutoShardedBot):
     @property
     def api_nodes(self) -> list[str]:
         return self._api_nodes
+
+    @property
+    def api_url(self) -> str:
+        return random.choice(self._api_nodes)
 
     @discord.utils.cached_property
     def webhook(self) -> discord.Webhook:
