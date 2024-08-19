@@ -67,5 +67,5 @@ class Error(commands.Cog):
                 return await self.bot.webhook.send(embed=embed)
 
 
-async def setup(bot: RoboNerva):
+async def setup(bot: RoboNerva) -> None:
     await bot.add_cog(Error(bot))

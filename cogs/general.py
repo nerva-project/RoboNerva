@@ -258,5 +258,5 @@ class General(commands.Cog):
         await ctx.edit_original_response(embed=embed, view=view)
 
 
-async def setup(bot: RoboNerva):
+async def setup(bot: RoboNerva) -> None:
     await bot.add_cog(General(bot))

@@ -262,5 +262,5 @@ class AutoPost(commands.Cog):
         )
 
 
-async def setup(bot: RoboNerva):
+async def setup(bot: RoboNerva) -> None:
     await bot.add_cog(AutoPost(bot))

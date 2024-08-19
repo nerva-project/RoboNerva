@@ -314,7 +314,7 @@ class Network(commands.Cog):
         if not bans:
             return await ctx.edit_original_response(content="There are no IP bans.")
 
-        pages = IPBanPaginatorSource(entries=list(enumerate(bans, 1)), ctx=ctx)
+        pages = IPBanPaginatorSource(entries=bans, ctx=ctx)
         paginator = ViewMenuPages(
             source=pages,
             timeout=300,
@@ -420,5 +420,5 @@ class Network(commands.Cog):
         )
 
 
-async def setup(bot: RoboNerva):
+async def setup(bot: RoboNerva) -> None:
     await bot.add_cog(Network(bot))
