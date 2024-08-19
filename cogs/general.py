@@ -179,7 +179,7 @@ class General(commands.Cog):
                 cli_prerelease = data["prerelease"]
 
             async with session.get(
-                "https://api.github.com/repos/nerva-project/nerva-gui/releases/latest",
+                "https://api.github.com/repos/nerva-project/NervaOneWalletMiner/releases/latest",
                 headers={"Authorization": f"Bearer {self.bot.config.GITHUB_TOKEN}"},
             ) as res:
                 data = await res.json()
@@ -207,8 +207,8 @@ class General(commands.Cog):
         view.add_item(
             discord.ui.Button(
                 label="Windows GUI",
-                url=f"https://github.com/nerva-project/nerva-gui/releases/download/"
-                f"{gui_version}/nerva-gui-{gui_version}_win-x64.zip",
+                url=f"https://github.com/nerva-project/NervaOneWalletMiner/releases/download/"
+                f"{gui_version}/nervaone-desktop-{gui_version}_win-x64.zip",
                 row=0,
             )
         )
@@ -224,8 +224,8 @@ class General(commands.Cog):
         view.add_item(
             discord.ui.Button(
                 label="Linux GUI",
-                url=f"https://github.com/nerva-project/nerva-gui/releases/download/"
-                f"{gui_version}/nerva-gui-{gui_version}_linux-x64.zip",
+                url=f"https://github.com/nerva-project/NervaOneWalletMiner/releases/download/"
+                f"{gui_version}/nervaone-desktop-{gui_version}_linux-x64.zip",
                 row=1,
             )
         )
@@ -241,8 +241,8 @@ class General(commands.Cog):
         view.add_item(
             discord.ui.Button(
                 label="MacOS GUI",
-                url=f"https://github.com/nerva-project/nerva-gui/releases/download/"
-                f"{gui_version}/nerva-gui-{gui_version}_osx-x64.zip",
+                url=f"https://github.com/nerva-project/NervaOneWalletMiner/releases/download/"
+                f"{gui_version}/nervaone-desktop-{gui_version}_osx-x64.zip",
                 row=2,
             )
         )
