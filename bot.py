@@ -7,9 +7,10 @@ from itertools import cycle
 
 import aiohttp
 import motor
+import dns.asyncresolver
 
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 import config
 
@@ -37,6 +38,30 @@ class RoboNerva(commands.AutoShardedBot):
 
         self._launch_time: datetime = Any
         self._status_items: cycle = Any
+        self._seed_nodes: list[str] = list()
+        self._api_nodes: list[str] = list()
+
+    @tasks.loop(hours=1)
+    async def _update_seed_nodes(self) -> None:
+        try:
+            answers = await dns.asyncresolver.resolve("seed.nerva.one", "TXT")
+
+            for rdata in answers:
+                self._seed_nodes.append(rdata.to_text().strip('"'))
+
+        except Exception as e:
+            self.log.exception("Failed to update seed nodes.", exc_info=e)
+
+    @tasks.loop(hours=1)
+    async def _update_api_nodes(self) -> None:
+        try:
+            answers = await dns.asyncresolver.resolve("api_url.nerva.one", "TXT")
+
+            for rdata in answers:
+                self._api_nodes.append(rdata.to_text().strip('"'))
+
+        except Exception as e:
+            self.log.exception("Failed to update seed nodes.", exc_info=e)
 
     async def setup_hook(self) -> None:
         self.session = aiohttp.ClientSession()
@@ -59,6 +84,9 @@ class RoboNerva(commands.AutoShardedBot):
 
         await self.tree.sync(guild=discord.Object(id=self.config.COMMUNITY_GUILD_ID))
 
+        self._update_seed_nodes.start()
+        self._update_api_nodes.start()
+
         self.log.info("RoboNerva is ready.")
 
     async def on_message(self, message: discord.Message) -> None:
@@ -74,6 +102,9 @@ class RoboNerva(commands.AutoShardedBot):
         await super().start(config.TOKEN, reconnect=True)
 
     async def close(self) -> None:
+        self._update_seed_nodes.cancel()
+        self._update_api_nodes.cancel()
+
         await super().close()
         await self.session.close()
 
@@ -92,6 +123,14 @@ class RoboNerva(commands.AutoShardedBot):
     @property
     def owner(self) -> discord.User:
         return self.bot_app_info.owner
+
+    @property
+    def seed_nodes(self) -> list[str]:
+        return self._seed_nodes
+
+    @property
+    def api_nodes(self) -> list[str]:
+        return self._api_nodes
 
     @discord.utils.cached_property
     def webhook(self) -> discord.Webhook:
