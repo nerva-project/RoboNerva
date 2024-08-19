@@ -103,7 +103,14 @@ class AutoPost(commands.Cog):
         )
 
         await collection.delete_many({})
-        await channel.send("@everyone", embed=embed, view=view)
+        message = await channel.send("@everyone", embed=embed, view=view)
+
+        await message.pin()
+
+        for _message in await channel.pins():
+            if _message.author.id == self.bot.user.id:
+                if _message.id != message.id:
+                    await _message.unpin()
 
     @_autopost_vote_reminder.before_loop
     async def _before_autopost_vote_reminder(self) -> None:
@@ -201,7 +208,14 @@ class AutoPost(commands.Cog):
             )
         )
 
-        await channel.send(embed=embed, view=view)
+        message = await channel.send(embed=embed, view=view)
+
+        await message.pin()
+
+        for _message in await channel.pins():
+            if _message.author.id == self.bot.user.id:
+                if _message.id != message.id:
+                    await _message.unpin()
 
     @_autopost_price_update.before_loop
     async def _before_autopost_price_update(self) -> None:
