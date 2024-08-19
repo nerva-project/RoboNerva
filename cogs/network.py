@@ -42,7 +42,8 @@ class Network(commands.Cog):
                 embed.add_field(name="Height", value=data["height"])
                 embed.add_field(name="Difficulty", value=data["difficulty"])
                 embed.add_field(
-                    name="Network Hashrate", value=calculate_hashrate(data["difficulty"])
+                    name="Network Hashrate",
+                    value=calculate_hashrate(data["difficulty"]),
                 )
                 embed.add_field(name="", value="")
                 embed.add_field(
@@ -133,7 +134,9 @@ class Network(commands.Cog):
         await ctx.response.defer(thinking=True)
 
         async with aiohttp.ClientSession() as session:
-            async with session.get("https://api.nerva.one/daemon/get_generated_coins/") as res:
+            async with session.get(
+                "https://api.nerva.one/daemon/get_generated_coins/"
+            ) as res:
                 supply = await res.json()
 
         await ctx.edit_original_response(
@@ -156,14 +159,25 @@ class Network(commands.Cog):
                 data = (await res.json())["result"]
 
                 embed.add_field(name="Version", value=data["version"])
-                embed.add_field(name="Height", value=f"{data['height']}/{data['target_height']}")
-                embed.add_field(name="Incoming Connections", value=data["incoming_connections_count"])
-                embed.add_field(name="Outgoing Connections", value=data["outgoing_connections_count"])
-                embed.add_field(name="Network Hashrate", value=calculate_hashrate(data["difficulty"]))
+                embed.add_field(
+                    name="Height", value=f"{data['height']}/{data['target_height']}"
+                )
+                embed.add_field(
+                    name="Incoming Connections",
+                    value=data["incoming_connections_count"],
+                )
+                embed.add_field(
+                    name="Outgoing Connections",
+                    value=data["outgoing_connections_count"],
+                )
+                embed.add_field(
+                    name="Network Hashrate",
+                    value=calculate_hashrate(data["difficulty"]),
+                )
                 embed.add_field(
                     name="Top Block Hash",
                     value=f"[`{data['top_block_hash']}`]"
-                          f"(https://explorer.nerva.one/detail/{data['top_block_hash']})",
+                    f"(https://explorer.nerva.one/detail/{data['top_block_hash']})",
                     inline=False,
                 )
 
@@ -230,13 +244,17 @@ class Network(commands.Cog):
 
         embed = discord.Embed(color=self.bot.embed_color)
         embed.title = "Nerva Inflation Information"
-        embed.description = ("<:nerva:1274417479606603776> is already in tail emission which means that each block has "
-                             "0.3 XNV (+ transaction fee) miner reward. **Below numbers are estimates.**")
+        embed.description = (
+            "<:nerva:1274417479606603776> is already in tail emission which means that each block has "
+            "0.3 XNV (+ transaction fee) miner reward. **Below numbers are estimates.**"
+        )
 
         embed.set_author(name="RoboNerva", icon_url=self.bot.user.avatar.url)
 
         async with aiohttp.ClientSession() as session:
-            async with session.get("https://api.nerva.one/daemon/get_generated_coins/") as res:
+            async with session.get(
+                "https://api.nerva.one/daemon/get_generated_coins/"
+            ) as res:
                 coins = await res.json()
 
                 embed.add_field(

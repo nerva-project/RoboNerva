@@ -27,11 +27,17 @@ class IPBanPaginatorSource(ListPageSource):
         embed = discord.Embed(color=EMBED_COLOR)
         embed.title = f"IP {item['host']}"
 
-        embed.set_author(name=self.ctx.guild.me, icon_url=self.ctx.guild.me.avatar.url)
+        embed.set_author(
+            name=self.ctx.guild.me, icon_url=self.ctx.guild.me.avatar.url
+        )
 
         embed.add_field(name="IP", value=item["ip"])
         embed.add_field(name="Reason", value=item["reason"])
-        embed.add_field(name="Time", value=f"```css\n{calculate_banned_time(item['seconds'])}```", inline=False)
+        embed.add_field(
+            name="Time",
+            value=f"```css\n{calculate_banned_time(item['seconds'])}```",
+            inline=False,
+        )
 
         return embed
 

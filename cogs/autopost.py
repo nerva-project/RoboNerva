@@ -77,7 +77,9 @@ class AutoPost(commands.Cog):
             except twikit.TwitterException:
                 post_id = self.bot.config.FALLBACK_TWEET_ID
 
-            embed.description = f"Interact on X:\n\nhttps://x.com/NervaCurrency/status/{post_id}\n\n"
+            embed.description = (
+                f"Interact on X:\n\nhttps://x.com/NervaCurrency/status/{post_id}\n\n"
+            )
 
         embed.description += (
             "Search for crypto related tweets and plug Nerva where appropriate "
