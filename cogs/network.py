@@ -10,7 +10,12 @@ from discord.ext.menus.views import ViewMenuPages
 
 from utils.cd import cooldown
 from utils.paginators import IPBanPaginatorSource
-from utils.tools import calculate_hashrate, calculate_database_size
+from utils.tools import (
+    is_admin,
+    calculate_hashrate,
+    calculate_database_size,
+    calculate_seconds_from_time_string,
+)
 
 if TYPE_CHECKING:
     from bot import RoboNerva
@@ -143,10 +148,34 @@ class Network(commands.Cog):
             content=f"The current circulating supply is `{supply} XNV`."
         )
 
-    @app_commands.command(name="seed")
+    @app_commands.command(name="seeds")
     @app_commands.guilds(COMMUNITY_GUILD_ID)
     @app_commands.checks.dynamic_cooldown(cooldown)
-    async def _seed(self, ctx: discord.Interaction):
+    async def _seeds(self, ctx: discord.Interaction):
+        """Shows the list of seed nodes."""
+        # noinspection PyUnresolvedReferences
+        await ctx.response.defer(thinking=True)
+
+        if not self.bot.seed_nodes:
+            return await ctx.edit_original_response(
+                content="There are no seed nodes available at the moment."
+            )
+
+        embed = discord.Embed(color=self.bot.embed_color)
+        embed.title = "Seed Nodes List"
+        embed.description = ""
+
+        embed.set_author(name="RoboNerva", icon_url=self.bot.user.avatar.url)
+
+        for i, node in enumerate(self.bot.seed_nodes, start=1):
+            embed.description += f"`{i}`. {node}\n"
+
+        await ctx.edit_original_response(embed=embed)
+
+    @app_commands.command(name="seedinfo")
+    @app_commands.guilds(COMMUNITY_GUILD_ID)
+    @app_commands.checks.dynamic_cooldown(cooldown)
+    async def _seed_info(self, ctx: discord.Interaction):
         """Shows information about the seed node."""
         # noinspection PyUnresolvedReferences
         await ctx.response.defer(thinking=True)
@@ -295,6 +324,100 @@ class Network(commands.Cog):
 
         await ctx.edit_original_response(content="\U0001F44C")
         await paginator.start(ctx)
+
+    @app_commands.command(name="ban")
+    @app_commands.guilds(COMMUNITY_GUILD_ID)
+    @app_commands.checks.dynamic_cooldown(cooldown)
+    async def _ban(self, ctx: discord.Interaction, ip: str, time: str):
+        """(ADMIN) Bans an IP address.
+
+        Parameters
+        ----------
+        ip : str
+            The IP address to ban.
+        time : str
+            The time to ban the IP address for. (eg: 1w, 3d 12h, 5m etc.)
+
+        """
+        if not is_admin(ctx.user):
+            # noinspection PyUnresolvedReferences
+            return await ctx.response.send_message(
+                content="Only admins can use this command.",
+                ephemeral=True,
+            )
+
+        # noinspection PyUnresolvedReferences
+        await ctx.response.defer(thinking=True)
+
+        node_count = len(self.bot.api_nodes)
+        pass_count = 0
+
+        async with aiohttp.ClientSession() as session:
+            for node in self.bot.api_nodes:
+                async with session.get(
+                    f"{node}/daemon/set_bans?ip={ip}&ban=true&"
+                    f"time={calculate_seconds_from_time_string(time)}"
+                ) as res:
+                    data = (await res.json())["result"]
+
+                    if data["status"] == "OK":
+                        pass_count += 1
+
+        if pass_count == 0:
+            return await ctx.edit_original_response(
+                content="Failed to ban IP from all seed nodes."
+            )
+
+        elif pass_count < node_count:
+            return await ctx.edit_original_response(
+                content="Partially banned IP from seed nodes."
+            )
+
+        await ctx.edit_original_response(
+            content="Successfully banned IP from all seed nodes."
+        )
+
+    @app_commands.command(name="unban")
+    @app_commands.guilds(COMMUNITY_GUILD_ID)
+    @app_commands.checks.dynamic_cooldown(cooldown)
+    async def _unban(self, ctx: discord.Interaction, ip: str):
+        """Unbans an IP address.
+
+        Parameters
+        ----------
+        ip : str
+            The IP address to unban.
+
+        """
+        # noinspection PyUnresolvedReferences
+        await ctx.response.defer(thinking=True)
+
+        node_count = len(self.bot.api_nodes)
+        pass_count = 0
+
+        async with aiohttp.ClientSession() as session:
+            for node in self.bot.api_nodes:
+                async with session.get(
+                    f"{node}/daemon/set_bans?ip={ip}&ban=false&time=0"
+                ) as res:
+                    data = (await res.json())["result"]
+
+                    if data["status"] == "OK":
+                        pass_count += 1
+
+        if pass_count == 0:
+            return await ctx.edit_original_response(
+                content="Failed to unban IP from all seed nodes."
+            )
+
+        elif pass_count < node_count:
+            return await ctx.edit_original_response(
+                content="Partially unbanned IP from seed nodes."
+            )
+
+        await ctx.edit_original_response(
+            content="Successfully unbanned IP from all seed nodes."
+        )
 
 
 async def setup(bot: RoboNerva):

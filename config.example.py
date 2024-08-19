@@ -7,6 +7,8 @@ WEBHOOK_TOKEN = "webhook_token"
 
 COMMUNITY_GUILD_ID = 1234567890
 
+ADMIN_ROLE_IDS = [...]
+
 MONGODB_URI = "mongodb_uri"
 
 TWITTER_USERNAME = "twitter_username"

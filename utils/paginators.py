@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Optional, Any
 import discord
 from discord.ext.menus import ListPageSource
 
-from utils.tools import calculate_banned_time
+from utils.tools import calculate_banned_time_from_seconds
 
 if TYPE_CHECKING:
     from discord.ext.menus import Menu
@@ -31,11 +31,11 @@ class IPBanPaginatorSource(ListPageSource):
             name=self.ctx.guild.me, icon_url=self.ctx.guild.me.avatar.url
         )
 
-        embed.add_field(name="IP", value=item["ip"])
+        embed.add_field(name="IP Int32", value=item["ip"])
         embed.add_field(name="Reason", value=item["reason"])
         embed.add_field(
-            name="Time",
-            value=f"```css\n{calculate_banned_time(item['seconds'])}```",
+            name="Time Remaining",
+            value=f"```css\n{calculate_banned_time_from_seconds(item['seconds'])}```",
             inline=False,
         )
 

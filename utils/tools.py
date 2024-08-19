@@ -2,6 +2,15 @@ from __future__ import annotations
 
 import validators
 
+import discord
+
+from config import ADMIN_ROLE_IDS
+
+
+def is_admin(member: discord.Member) -> bool:
+    """Check if user is admin."""
+    return any(role.id in ADMIN_ROLE_IDS for role in member.roles)
+
 
 def validate_tweet_links(tweet_links: list[str]) -> bool:
     """Validate tweet links."""
@@ -37,7 +46,7 @@ def calculate_database_size(size: int) -> str:
     return f"{size / 1_000_000_000:.2f} GB"
 
 
-def calculate_banned_time(seconds: int) -> str:
+def calculate_banned_time_from_seconds(seconds: int) -> str:
     """Calculate banned time."""
     days, remainder = divmod(seconds, 86400)
     hours, remainder = divmod(remainder, 3600)
@@ -53,3 +62,25 @@ def calculate_banned_time(seconds: int) -> str:
         return f"{hours}h {minutes}m {seconds}s"
 
     return f"{days}d {hours}h {minutes}m {seconds}s"
+
+
+def calculate_seconds_from_time_string(time_string: str) -> int:
+    """Calculate seconds from time string."""
+    time = time_string.split(" ")
+
+    seconds = 0
+
+    for t in time:
+        if t.endswith("s"):
+            seconds += int(t[:-1])
+
+        if t.endswith("m"):
+            seconds += int(t[:-1]) * 60
+
+        if t.endswith("h"):
+            seconds += int(t[:-1]) * 3600
+
+        if t.endswith("d"):
+            seconds += int(t[:-1]) * 86400
+
+    return seconds

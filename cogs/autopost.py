@@ -13,7 +13,7 @@ from discord.ext import commands, tasks
 
 from utils.cd import cooldown
 from utils.modals import TweetLinksModal
-from utils.tools import validate_tweet_links
+from utils.tools import is_admin, validate_tweet_links
 
 if TYPE_CHECKING:
     from bot import RoboNerva
@@ -167,7 +167,8 @@ class AutoPost(commands.Cog):
 
         embed.set_footer(
             text="Powered by the CoinGecko API",
-            icon_url="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT9xV6Ut4_LMNqb9umIAXW3eu7-unDOiLeNjg&s",
+            icon_url="https://encrypted-tbn0.gstatic.com/images?"
+            "q=tbn:ANd9GcT9xV6Ut4_LMNqb9umIAXW3eu7-unDOiLeNjg&s",
         )
 
         view = discord.ui.View()
@@ -218,11 +219,12 @@ class AutoPost(commands.Cog):
     @app_commands.guilds(COMMUNITY_GUILD_ID)
     @app_commands.checks.dynamic_cooldown(cooldown)
     async def _upload(self, ctx: discord.Interaction):
-        """Update tweet links for daily tasks autopost."""
-        if not await self.bot.is_owner(ctx.user):
+        """(ADMIN) Update tweet links for daily tasks autopost."""
+        if not is_admin(ctx.user):
             # noinspection PyUnresolvedReferences
             return await ctx.response.send_message(
-                content="You are not authorized to use this command."
+                "Only admins can use this command.",
+                ephemeral=True,
             )
 
         modal = TweetLinksModal()
