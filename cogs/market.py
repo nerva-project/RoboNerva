@@ -97,7 +97,7 @@ class Market(commands.Cog):
     @app_commands.guilds(COMMUNITY_GUILD_ID)
     @app_commands.checks.dynamic_cooldown(cooldown)
     async def _tradeogre(self, ctx: discord.Interaction):
-        """Shows the current XNV price on TradeOgre."""
+        """Shows the current Nerva market data from TradeOgre."""
         # noinspection PyUnresolvedReferences
         await ctx.response.defer(thinking=True)
 
@@ -153,7 +153,7 @@ class Market(commands.Cog):
     @app_commands.guilds(COMMUNITY_GUILD_ID)
     @app_commands.checks.dynamic_cooldown(cooldown)
     async def _xeggex(self, ctx: discord.Interaction):
-        """Shows the current XNV-USDT price on Xeggex."""
+        """Shows the current Nerva market data from Xeggex."""
         # noinspection PyUnresolvedReferences
         await ctx.response.defer(thinking=True)
 
