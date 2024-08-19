@@ -77,7 +77,7 @@ async def run_bot():
 
     except Exception as e:
         click.echo("Could not set up MongoDB. Exiting.", file=sys.stderr)
-        return log.exception(f"Could not set up MongoDB. {e}")
+        return log.exception(f"Could not set up MongoDB.", exc_info=e)
 
     async with RoboNerva() as bot:
         bot.log = log
