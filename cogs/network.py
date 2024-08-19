@@ -6,8 +6,10 @@ import aiohttp
 import discord
 from discord import app_commands
 from discord.ext import commands
+from discord.ext.menus.views import ViewMenuPages
 
 from utils.cd import cooldown
+from utils.paginators import IPBanPaginatorSource
 from utils.tools import calculate_hashrate, calculate_database_size
 
 if TYPE_CHECKING:
@@ -249,6 +251,32 @@ class Network(commands.Cog):
                 embed.add_field(name="New XNV per day", value=new_xnv_per_day)
 
         await ctx.edit_original_response(embed=embed)
+
+    @app_commands.command(name="bans")
+    @app_commands.guilds(COMMUNITY_GUILD_ID)
+    @app_commands.checks.dynamic_cooldown(cooldown)
+    async def _bans(self, ctx: discord.Interaction):
+        """Shows the list of banned IP addresses."""
+        # noinspection PyUnresolvedReferences
+        await ctx.response.defer(thinking=True)
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get("https://api.nerva.one/daemon/get_bans/") as res:
+                bans = (await res.json())["result"]["bans"]
+
+        if not bans:
+            return await ctx.edit_original_response(content="There are no IP bans.")
+
+        pages = IPBanPaginatorSource(entries=bans, ctx=ctx)
+        paginator = ViewMenuPages(
+            source=pages,
+            timeout=300,
+            delete_message_after=False,
+            clear_reactions_after=True,
+        )
+
+        await ctx.edit_original_response(content="\U0001F44C")
+        await paginator.start(ctx)
 
 
 async def setup(bot: RoboNerva):
