@@ -4,6 +4,8 @@ from typing import TYPE_CHECKING
 import math
 from datetime import datetime, UTC
 
+import aiohttp
+
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -152,6 +154,108 @@ class General(commands.Cog):
         await ctx.edit_original_response(
             content="Here are the links to various Nerva trading pairs!", view=view
         )
+
+    @app_commands.command(name="downloads")
+    @app_commands.guilds(COMMUNITY_GUILD_ID)
+    @app_commands.checks.dynamic_cooldown(cooldown)
+    async def _downloads(self, ctx: discord.Interaction):
+        """Shows the links to various Nerva downloads."""
+        # noinspection PyUnresolvedReferences
+        await ctx.response.defer(thinking=True)
+
+        embed = discord.Embed(colour=self.bot.embed_color)
+        embed.title = "Nerva Downloads"
+
+        embed.set_author(name="RoboNerva", icon_url=self.bot.user.avatar.url)
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                "https://api.github.com/repos/nerva-project/nerva/releases/latest",
+                headers={"Authorization": f"Bearer {self.bot.config.GITHUB_TOKEN}"},
+            ) as res:
+                data = await res.json()
+
+                cli_version = data["tag_name"]
+                cli_prerelease = data["prerelease"]
+
+            async with session.get(
+                "https://api.github.com/repos/nerva-project/nerva-gui/releases/latest",
+                headers={"Authorization": f"Bearer {self.bot.config.GITHUB_TOKEN}"},
+            ) as res:
+                data = await res.json()
+
+                gui_version = data["tag_name"]
+                gui_prerelease = data["prerelease"]
+
+        embed.description = (
+            f"Latest CLI version: **{cli_version} "
+            f"({'prerelease' if cli_prerelease else 'stable'})**"
+            f"\nLatest GUI version: **{gui_version} "
+            f"({'prerelease' if gui_prerelease else 'stable'})**"
+        )
+
+        view = discord.ui.View()
+
+        view.add_item(
+            discord.ui.Button(
+                label="Windows CLI",
+                url=f"https://github.com/nerva-project/nerva/releases/download/"
+                f"{cli_version}/nerva-{cli_version}_windows_minimal.zip",
+                row=0,
+            )
+        )
+        view.add_item(
+            discord.ui.Button(
+                label="Windows GUI",
+                url=f"https://github.com/nerva-project/nerva-gui/releases/download/"
+                f"{gui_version}/nerva-gui-{gui_version}_win-x64.zip",
+                row=0,
+            )
+        )
+
+        view.add_item(
+            discord.ui.Button(
+                label="Linux CLI",
+                url=f"https://github.com/nerva-project/nerva/releases/download/"
+                f"{cli_version}/nerva-{cli_version}_linux_minimal.zip",
+                row=1,
+            )
+        )
+        view.add_item(
+            discord.ui.Button(
+                label="Linux GUI",
+                url=f"https://github.com/nerva-project/nerva-gui/releases/download/"
+                f"{gui_version}/nerva-gui-{gui_version}_linux-x64.zip",
+                row=1,
+            )
+        )
+
+        view.add_item(
+            discord.ui.Button(
+                label="MacOS CLI",
+                url=f"https://github.com/nerva-project/nerva/releases/download/"
+                f"{cli_version}/nerva-{cli_version}_osx_minimal.zip",
+                row=2,
+            )
+        )
+        view.add_item(
+            discord.ui.Button(
+                label="MacOS GUI",
+                url=f"https://github.com/nerva-project/nerva-gui/releases/download/"
+                f"{gui_version}/nerva-gui-{gui_version}_osx-x64.zip",
+                row=2,
+            )
+        )
+
+        view.add_item(
+            discord.ui.Button(
+                label="Chain QuickSync",
+                url="https://nerva.one/quicksync/quicksync.raw",
+                row=3,
+            )
+        )
+
+        await ctx.edit_original_response(embed=embed, view=view)
 
 
 async def setup(bot: RoboNerva):

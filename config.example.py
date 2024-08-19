@@ -11,6 +11,8 @@ ADMIN_ROLE_IDS = [...]
 
 MONGODB_URI = "mongodb_uri"
 
+GITHUB_TOKEN = "github_token"
+
 TWITTER_USERNAME = "twitter_username"
 TWITTER_EMAIL = "twitter_email"
 TWITTER_PASSWORD = "twitter_password"
