@@ -22,8 +22,11 @@ class IPBanPaginatorSource(ListPageSource):
         super().__init__(entries, per_page=per_page)
 
         self.ctx = ctx
+        self.total_pages = len(entries)
 
     async def format_page(self, menu: Menu, item: Any) -> discord.Embed:
+        page_no, item = item
+
         embed = discord.Embed(color=EMBED_COLOR)
         embed.title = f"IP {item['host']}"
 
@@ -38,6 +41,8 @@ class IPBanPaginatorSource(ListPageSource):
             value=f"```css\n{calculate_banned_time_from_seconds(item['seconds'])}```",
             inline=False,
         )
+
+        embed.set_footer(text=f"Entry {page_no}/{self.total_pages}")
 
         return embed
 
