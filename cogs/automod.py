@@ -3,13 +3,21 @@ from typing import TYPE_CHECKING
 
 from datetime import datetime, UTC
 
+import discord
+import re
 from discord.ext import commands, tasks
 
 
 if TYPE_CHECKING:
     from bot import RoboNerva
 
-from config import COMMUNITY_GUILD_ID, UNVERIFIED_USER_ROLE_ID, VERIFIED_USER_ROLE_ID
+from config import (
+    COMMUNITY_GUILD_ID,
+    UNVERIFIED_USER_ROLE_ID,
+    VERIFIED_USER_ROLE_ID,
+    NAME_BLACKLIST_REGEX,
+    MESSAGE_BLACKLIST_REGEX,
+)
 
 
 class AutoMod(commands.Cog):
@@ -87,6 +95,87 @@ class AutoMod(commands.Cog):
     def cog_unload(self) -> None:
         self._auto_mod_check_verified.cancel()
         self._auto_mod_prune_inactive.cancel()
+
+    @commands.Cog.listener()
+    async def on_member_join(self, member: discord.Member) -> None:
+        for regex in NAME_BLACKLIST_REGEX:
+            if re.search(regex, member.display_name, re.IGNORECASE):
+                self.bot.log.info(
+                    f"Banning {member} for having a blacklisted name match - {regex}."
+                )
+
+                try:
+                    await member.send(
+                        f"You have been banned from the Nerva community server "
+                        f"for having a blacklisted name match - {regex}."
+                    )
+
+                except (discord.Forbidden, discord.errors.Forbidden):
+                    pass
+
+                await member.ban(reason=f"Blacklisted name match - {regex}.")
+
+    @commands.Cog.listener()
+    async def on_message(self, message: discord.Message) -> None:
+        if message.author.bot:
+            return
+
+        for regex in MESSAGE_BLACKLIST_REGEX:
+            if re.search(regex, message.content, re.IGNORECASE):
+                self.bot.log.info(
+                    f"Deleting message from {message.author} for having a "
+                    f"blacklisted message match - {regex}."
+                )
+                await message.delete()
+
+                collection = self.bot.db.get_collection("member_warnings")
+
+                if await collection.find_one({"_id": message.author.id}):
+                    await collection.update_one(
+                        {"_id": message.author.id}, {"$inc": {"warnings": 1}}
+                    )
+
+                else:
+                    await collection.insert_one(
+                        {"_id": message.author.id, "warnings": 1}
+                    )
+
+                if await collection.find_one(
+                    {"_id": message.author.id, "warnings": 3}
+                ):
+                    self.bot.log.info(
+                        f"Banning {message.author} for having 3 warnings for blacklisted messages."
+                    )
+
+                    try:
+                        await message.author.send(
+                            "You have been banned from the Nerva community server "
+                            "for receiving 3 warnings for blacklisted message matches."
+                        )
+
+                    except (discord.Forbidden, discord.errors.Forbidden):
+                        pass
+
+                    await message.author.ban(
+                        reason="3 warnings received for blacklisted message matches."
+                    )
+
+                else:
+                    warning_count = (
+                        await collection.find_one({"_id": message.author.id})
+                    )["warnings"]
+
+                    try:
+                        await message.author.send(
+                            "Your message has been deleted because it matched a blacklisted message.\n"
+                            "Please refrain from posting such messages in the future.\n"
+                            "You have received a warning for this message.\n"
+                            f"Warning count: {warning_count}/3\n"
+                            "If you receive 3 warnings, you will be banned from the server.\n"
+                        )
+
+                    except (discord.Forbidden, discord.errors.Forbidden):
+                        pass
 
 
 async def setup(bot: RoboNerva) -> None:
