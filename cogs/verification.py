@@ -26,6 +26,11 @@ class Verification(commands.Cog):
         if not welcome_channel:
             return
 
+        unverified_user_role = member.guild.get_role(
+            self.bot.config.UNVERIFIED_USER_ROLE_ID
+        )
+        await member.add_roles(unverified_user_role)
+
         view = discord.ui.View()
         view.add_item(VerifyButton())
 
