@@ -80,6 +80,26 @@ class AutoMod(commands.Cog):
             if oldest_message is None:
                 continue
 
+            if (datetime.now(UTC) - oldest_message.created_at).days >= 177:
+                try:
+                    await member.send(
+                        "You have been inactive for 6 months in the Nerva community server. "
+                        "You will be kicked in 3 days if you do not send at least one message."
+                    )
+
+                except (discord.Forbidden, discord.errors.Forbidden):
+                    pass
+
+            if (datetime.now(UTC) - oldest_message.created_at).days >= 179:
+                try:
+                    await member.send(
+                        "You have been inactive for 6 months in the Nerva community server. "
+                        "You will be kicked tomorrow if you do not send at least one message."
+                    )
+
+                except (discord.Forbidden, discord.errors.Forbidden):
+                    pass
+
             if (datetime.now(UTC) - oldest_message.created_at).days >= 180:
                 self.bot.log.info(f"Kicking {member} for being inactive for 6M.")
                 await member.kick(reason="Inactive for 6M.")
