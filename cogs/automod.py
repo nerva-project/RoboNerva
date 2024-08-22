@@ -3,10 +3,12 @@ from typing import TYPE_CHECKING
 
 from datetime import datetime, UTC
 
-import discord
 import re
+
+import discord
 from discord.ext import commands, tasks
 
+from utils.tools import is_admin
 
 if TYPE_CHECKING:
     from bot import RoboNerva
@@ -31,7 +33,7 @@ class AutoMod(commands.Cog):
         verified_role = guild.get_role(VERIFIED_USER_ROLE_ID)
 
         for member in guild.members:
-            if member.bot:
+            if member.bot or is_admin(member):
                 continue
 
             if verified_role in member.roles and unverified_role not in member.roles:
@@ -58,7 +60,7 @@ class AutoMod(commands.Cog):
         guild = self.bot.get_guild(COMMUNITY_GUILD_ID)
 
         for member in guild.members:
-            if member.bot:
+            if member.bot or is_admin(member):
                 continue
 
             oldest_message = None
@@ -151,7 +153,7 @@ class AutoMod(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
-        if message.author.bot:
+        if message.author.bot or is_admin(message.author):
             return
 
         for regex in MESSAGE_BLACKLIST_REGEX:
