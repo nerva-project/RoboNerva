@@ -7,6 +7,8 @@ from discord.ext import commands
 
 from utils.cd import cooldown
 
+from config import COMMUNITY_GUILD_ID
+
 if TYPE_CHECKING:
     from bot import RoboNerva
 
@@ -16,6 +18,7 @@ class Help(commands.Cog):
         self.bot: RoboNerva = bot
 
     @app_commands.command(name="help")
+    @app_commands.guilds(COMMUNITY_GUILD_ID)
     @app_commands.checks.dynamic_cooldown(cooldown)
     async def _help(self, ctx: discord.Interaction):
         """Shows a list of all the commands provided by RoboNerva."""
