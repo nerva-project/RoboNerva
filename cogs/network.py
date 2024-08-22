@@ -309,9 +309,9 @@ class Network(commands.Cog):
 
         async with aiohttp.ClientSession() as session:
             async with session.get(f"{self.bot.api_url}/daemon/get_bans/") as res:
-                bans = (await res.json())["result"]["bans"]
+                bans = (await res.json())["result"]
 
-        if not bans:
+        if "bans" not in bans.keys():
             return await ctx.edit_original_response(content="There are no IP bans.")
 
         pages = IPBanPaginatorSource(entries=bans, ctx=ctx)
