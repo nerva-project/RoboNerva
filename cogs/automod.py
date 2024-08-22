@@ -42,7 +42,12 @@ class AutoMod(commands.Cog):
 
             if (datetime.now(UTC) - member.joined_at).days >= 1:
                 self.bot.log.info(f"Kicking {member} for not verifying within 24h.")
+
                 await member.kick(reason="Not verified within 24h.")
+
+                await self.bot.webhook.send(
+                    f"**{member}** has been kicked for not verifying within 24h."
+                )
 
     @_auto_mod_check_verified.before_loop
     async def _before_auto_mod_check_verified(self) -> None:
@@ -102,7 +107,12 @@ class AutoMod(commands.Cog):
 
             if (datetime.now(UTC) - oldest_message.created_at).days >= 180:
                 self.bot.log.info(f"Kicking {member} for being inactive for 6M.")
+
                 await member.kick(reason="Inactive for 6M.")
+
+                await self.bot.webhook.send(
+                    f"**{member}** has been kicked for being inactive for 6M."
+                )
 
     @_auto_mod_prune_inactive.before_loop
     async def _before_auto_mod_prune_inactive(self) -> None:
@@ -135,6 +145,10 @@ class AutoMod(commands.Cog):
 
                 await member.ban(reason=f"Blacklisted name match - {regex}.")
 
+                await self.bot.webhook.send(
+                    f"**{member}** has been banned for having a blacklisted name match - {regex}."
+                )
+
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
         if message.author.bot:
@@ -146,7 +160,13 @@ class AutoMod(commands.Cog):
                     f"Deleting message from {message.author} for having a "
                     f"blacklisted message match - {regex}."
                 )
+
                 await message.delete()
+
+                await self.bot.webhook.send(
+                    f"**{message.author}**'s message has been deleted for having a "
+                    f"blacklisted message match - {regex}."
+                )
 
                 collection = self.bot.db.get_collection("member_warnings")
 
@@ -180,6 +200,13 @@ class AutoMod(commands.Cog):
                         reason="3 warnings received for blacklisted message matches."
                     )
 
+                    await collection.delete_one({"_id": message.author.id})
+
+                    await self.bot.webhook.send(
+                        f"**{message.author}** has been banned for receiving "
+                        f"3 warnings for blacklisted message matches."
+                    )
+
                 else:
                     warning_count = (
                         await collection.find_one({"_id": message.author.id})
@@ -192,6 +219,9 @@ class AutoMod(commands.Cog):
                             "You have received a warning for this message.\n"
                             f"Warning count: {warning_count}/3\n"
                             "If you receive 3 warnings, you will be banned from the server.\n"
+                            "If you believe this was a mistake, please contact a moderator."
+                            "Your message:\n"
+                            f"```\n{message.content}\n```"
                         )
 
                     except (discord.Forbidden, discord.errors.Forbidden):
