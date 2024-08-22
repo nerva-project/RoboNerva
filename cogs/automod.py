@@ -43,7 +43,7 @@ class AutoMod(commands.Cog):
             if (datetime.now(UTC) - member.joined_at).days >= 1:
                 self.bot.log.info(f"Kicking {member} for not verifying within 24h.")
 
-                await member.kick(reason="Not verified within 24h.")
+                # await member.kick(reason="Not verified within 24h.")
 
                 await self.bot.webhook.send(
                     f"**{member}** has been kicked for not verifying within 24h."
@@ -108,7 +108,7 @@ class AutoMod(commands.Cog):
             if (datetime.now(UTC) - oldest_message.created_at).days >= 180:
                 self.bot.log.info(f"Kicking {member} for being inactive for 6M.")
 
-                await member.kick(reason="Inactive for 6M.")
+                # await member.kick(reason="Inactive for 6M.")
 
                 await self.bot.webhook.send(
                     f"**{member}** has been kicked for being inactive for 6M."
@@ -143,7 +143,7 @@ class AutoMod(commands.Cog):
                 except (discord.Forbidden, discord.errors.Forbidden):
                     pass
 
-                await member.ban(reason=f"Blacklisted name match - {regex}.")
+                # await member.ban(reason=f"Blacklisted name match - {regex}.")
 
                 await self.bot.webhook.send(
                     f"**{member}** has been banned for having a blacklisted name match - {regex}."
@@ -161,7 +161,7 @@ class AutoMod(commands.Cog):
                     f"blacklisted message match - {regex}."
                 )
 
-                await message.delete()
+                # await message.delete()
 
                 await self.bot.webhook.send(
                     f"**{message.author}**'s message has been deleted for having a "
@@ -196,9 +196,11 @@ class AutoMod(commands.Cog):
                     except (discord.Forbidden, discord.errors.Forbidden):
                         pass
 
+                    """
                     await message.author.ban(
                         reason="3 warnings received for blacklisted message matches."
                     )
+                    """
 
                     await collection.delete_one({"_id": message.author.id})
 
