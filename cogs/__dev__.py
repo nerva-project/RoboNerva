@@ -109,6 +109,22 @@ class Dev(commands.Cog):
 
         await ctx.edit_original_response(content="The extension has been reloaded.")
 
+    @app_commands.command(name="sync")
+    @app_commands.guilds(COMMUNITY_GUILD_ID)
+    async def _sync(self, ctx: discord.Interaction):
+        """Sync the server's app commands."""
+        # noinspection PyUnresolvedReferences
+        await ctx.response.defer(thinking=True)
+
+        if not is_admin(ctx.user):
+            return await ctx.edit_original_response(
+                content="Only admins can use this command."
+            )
+
+        await self.bot.tree.sync(guild=ctx.guild)
+
+        await ctx.edit_original_response(content="Synced.")
+
 
 async def setup(bot: RoboNerva):
     await bot.add_cog(Dev(bot))
