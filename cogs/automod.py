@@ -98,8 +98,8 @@ class AutoMod(commands.Cog):
                 # await member.kick(reason="Inactive for 6M.")
 
                 await self.bot.webhook.send(
-                    f"[SANDBOX] **{member}** has been kicked for being inactive for 6M."
-                    f"Oldest message: {oldest_message.jump_url}"
+                    f"[SANDBOX] **{member}** has been kicked for being inactive for 6M.\n"
+                    f"Oldest message: {oldest_message.jump_url}\n"
                     f"Days since last message: {(datetime.now(UTC) - oldest_message.created_at).days}"
                 )
 
