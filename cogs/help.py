@@ -28,11 +28,11 @@ class Help(commands.Cog):
         embed = discord.Embed(colour=self.bot.embed_color)
         embed.title = "Command List"
         embed.description = (
-            "Here's a list of available commands:\n\n(\U0001F31F = Admin only)"
+            "Here's a list of available commands:\n\n(\U00002b50 = Admin only)"
         )
 
         embed.add_field(
-            name="AutoPost", value=f"`/upload` (\U0001F31F)", inline=False
+            name="AutoPost", value=f"`/upload` (\U00002b50)", inline=False
         )
 
         embed.add_field(
@@ -50,12 +50,12 @@ class Help(commands.Cog):
         embed.add_field(
             name="Network",
             value=f"`/info`, `/height`, `/difficulty`, `/hashrate`, `/supply`, `/seeds`, "
-            f"`/seed_info`, `/lastblock`, `/inflation`, `/bans`, `/ban` (\U0001F31F), `/unban`, ",
+            f"`/seed_info`, `/lastblock`, `/inflation`, `/bans`, `/ban` (\U00002b50), `/unban`, ",
             inline=False,
         )
 
         embed.add_field(
-            name="Verification", value=f"`/revoke` (\U0001F31F)", inline=False
+            name="Verification", value=f"`/revoke` (\U00002b50)", inline=False
         )
 
         await ctx.edit_original_response(embed=embed)
