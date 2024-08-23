@@ -32,7 +32,7 @@ class AutoMod(commands.Cog):
         unverified_role = guild.get_role(UNVERIFIED_USER_ROLE_ID)
         verified_role = guild.get_role(VERIFIED_USER_ROLE_ID)
 
-        for member in guild.members:
+        async for member in guild.fetch_members(limit=None):
             if member.bot or is_admin(member):
                 continue
 
@@ -59,7 +59,7 @@ class AutoMod(commands.Cog):
     async def _auto_mod_prune_inactive(self):
         guild = self.bot.get_guild(COMMUNITY_GUILD_ID)
 
-        for member in guild.members:
+        async for member in guild.fetch_members(limit=None):
             if member.bot or is_admin(member):
                 continue
 
@@ -92,35 +92,39 @@ class AutoMod(commands.Cog):
             if oldest_message is None:
                 continue
 
-            if (datetime.now(UTC) - oldest_message.created_at).days >= 177:
+            if (datetime.now(UTC) - oldest_message.created_at).days > 180:
+                self.bot.log.info(f"Kicking {member} for being inactive for 6M.")
+
+                # await member.kick(reason="Inactive for 6M.")
+
+                await self.bot.webhook.send(
+                    f"[SANDBOX] **{member}** has been kicked for being inactive for 6M."
+                    f"Oldest message: {oldest_message.jump_url}"
+                    f"Days since last message: {(datetime.now(UTC) - oldest_message.created_at).days}"
+                )
+
+            elif (datetime.now(UTC) - oldest_message.created_at).days > 179:
                 try:
                     await member.send(
-                        "You have been inactive for 6 months in the Nerva community server. "
-                        "You will be kicked in 3 days if you do not send at least one message."
-                    )
-
-                except (discord.Forbidden, discord.errors.Forbidden):
-                    pass
-
-            if (datetime.now(UTC) - oldest_message.created_at).days >= 179:
-                try:
-                    await member.send(
-                        "You have been inactive for 6 months in the Nerva community server. "
+                        "You have been inactive for the last 6 months in the Nerva community server. "
                         "You will be kicked tomorrow if you do not send at least one message."
                     )
 
                 except (discord.Forbidden, discord.errors.Forbidden):
                     pass
 
-            if (datetime.now(UTC) - oldest_message.created_at).days >= 180:
-                self.bot.log.info(f"Kicking {member} for being inactive for 6M.")
+            elif (datetime.now(UTC) - oldest_message.created_at).days > 177:
+                try:
+                    await member.send(
+                        "You have been inactive for the last 6 months in the Nerva community server. "
+                        "You will be kicked in 3 days if you do not send at least one message."
+                    )
 
-                # await member.kick(reason="Inactive for 6M.")
+                except (discord.Forbidden, discord.errors.Forbidden):
+                    pass
 
-                await self.bot.webhook.send(
-                    f"**{member}** has been kicked for being inactive for 6M."
-                    f"Oldest message: {oldest_message.jump_url}"
-                )
+            else:
+                pass
 
     @_auto_mod_prune_inactive.before_loop
     async def _before_auto_mod_prune_inactive(self) -> None:
