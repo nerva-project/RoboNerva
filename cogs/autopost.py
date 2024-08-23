@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from datetime import datetime, UTC
+from datetime import datetime, time, UTC
 
 import aiohttp
 import twikit
@@ -18,14 +18,14 @@ from utils.tools import is_admin, validate_tweet_links
 if TYPE_CHECKING:
     from bot import RoboNerva
 
-from config import COMMUNITY_GUILD_ID
+from config import COMMUNITY_GUILD_ID, AUTOPOST_MINUTES_AFTER_UTC
 
 
 class AutoPost(commands.Cog):
     def __init__(self, bot: RoboNerva):
         self.bot: RoboNerva = bot
 
-    @tasks.loop(hours=24)
+    @tasks.loop(time=time(hour=0, minute=AUTOPOST_MINUTES_AFTER_UTC))
     async def _autopost_vote_reminder(self):
         channel = self.bot.get_channel(
             self.bot.config.AUTOPOST_VOTE_REMINDER_CHANNEL_ID
@@ -116,7 +116,7 @@ class AutoPost(commands.Cog):
     async def _before_autopost_vote_reminder(self) -> None:
         await self.bot.wait_until_ready()
 
-    @tasks.loop(hours=24)
+    @tasks.loop(time=time(hour=0, minute=AUTOPOST_MINUTES_AFTER_UTC))
     async def _autopost_price_update(self):
         channel = self.bot.get_channel(
             self.bot.config.AUTOPOST_PRICE_UPDATE_CHANNEL_ID
