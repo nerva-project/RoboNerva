@@ -66,7 +66,12 @@ class AutoMod(commands.Cog):
             oldest_message = None
 
             for channel in guild.text_channels:
-                messages = [message async for message in channel.history(limit=300)]
+                messages = [
+                    message
+                    async for message in channel.history(
+                        limit=self.bot.config.AUTOMOD_CHANNEL_HISTORY_MESSAGE_LIMIT
+                    )
+                ]
                 user_messages = [
                     message for message in messages if message.author == member
                 ]
@@ -114,6 +119,7 @@ class AutoMod(commands.Cog):
 
                 await self.bot.webhook.send(
                     f"**{member}** has been kicked for being inactive for 6M."
+                    f"Oldest message: {oldest_message.jump_url}"
                 )
 
     @_auto_mod_prune_inactive.before_loop
