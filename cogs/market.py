@@ -1,12 +1,14 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
+from datetime import time, datetime, timedelta
+
 import aiohttp
 from dateutil.parser import parse
 
 import discord
 from discord import app_commands
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord.ext.menus.views import ViewMenuPages
 
 from utils.cd import cooldown
@@ -15,12 +17,78 @@ from utils.paginators import TradeOgrePaginatorSource
 if TYPE_CHECKING:
     from bot import RoboNerva
 
-from config import COMMUNITY_GUILD_ID
+from config import COMMUNITY_GUILD_ID, MARKET_HISTORY_HOURS_AFTER_UTC
 
 
 class Market(commands.Cog):
     def __init__(self, bot: RoboNerva):
         self.bot: RoboNerva = bot
+
+    @tasks.loop(time=time(hour=MARKET_HISTORY_HOURS_AFTER_UTC))
+    async def _store_historical_data(self):
+        yesterday_date = datetime.now() - timedelta(days=1)
+
+        start_timestamp = int(
+            yesterday_date.replace(
+                hour=0, minute=0, second=0, microsecond=0
+            ).timestamp()
+        )
+        end_timestamp = int(
+            (yesterday_date + timedelta(days=1))
+            .replace(hour=0, minute=0, second=0, microsecond=0)
+            .timestamp()
+        )
+
+        params = {"vs_currency": "usd", "from": start_timestamp, "to": end_timestamp}
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                "https://api.coingecko.com/api/v3/coins/nerva/market_chart/range",
+                params=params,
+            ) as res:
+                data = await res.json()
+
+                collection = self.bot.db["xnv_historical_price_data"]
+
+                if "prices" not in data:
+                    opening_price = None
+                    closing_price = None
+                    high_price = None
+                    low_price = None
+                    total_volume = None
+
+                else:
+                    prices = data["prices"]
+                    total_volumes = data.get("total_volumes", [])
+
+                    opening_price = prices[0][1]
+                    closing_price = prices[-1][1]
+                    high_price = max([price[1] for price in prices])
+                    low_price = min([price[1] for price in prices])
+                    total_volume = sum([volume[1] for volume in total_volumes])
+
+                await collection.insert_one(
+                    {
+                        "date": yesterday_date.replace(
+                            hour=0, minute=0, second=0, microsecond=0
+                        ),
+                        "opening": round(opening_price, 4),
+                        "closing": round(closing_price, 4),
+                        "high": round(high_price, 4),
+                        "low": round(low_price, 4),
+                        "volume": round(total_volume),
+                    }
+                )
+
+    @_store_historical_data.before_loop
+    async def _before_store_historical_data(self):
+        await self.bot.wait_until_ready()
+
+    def cog_load(self) -> None:
+        self._store_historical_data.start()
+
+    def cog_unload(self) -> None:
+        self._store_historical_data.cancel()
 
     @app_commands.command(name="coingecko")
     @app_commands.guilds(COMMUNITY_GUILD_ID)
@@ -46,7 +114,8 @@ class Market(commands.Cog):
                 data = await res.json()
 
                 embed.add_field(
-                    name="Current Price", value=f"${data[0]['current_price']}"
+                    name="Current Price",
+                    value=f"${round(float(data[0]['current_price']), 4)}",
                 )
                 embed.add_field(
                     name="Last Updated",
@@ -60,8 +129,12 @@ class Market(commands.Cog):
                     name="Market Cap Change (24h)",
                     value=f"{round(float(data[0]['market_cap_change_percentage_24h']), 2)}%",
                 )
-                embed.add_field(name="24h High", value=f"${data[0]['high_24h']}")
-                embed.add_field(name="24h Low", value=f"${data[0]['low_24h']}")
+                embed.add_field(
+                    name="24h High", value=f"${round(float(data[0]['high_24h']), 4)}"
+                )
+                embed.add_field(
+                    name="24h Low", value=f"${round(float(data[0]['low_24h']), 4)}"
+                )
                 embed.add_field(
                     name="Price Change (24h)",
                     value=f"{round(float(data[0]['price_change_percentage_24h']), 2)}%",
@@ -205,6 +278,46 @@ class Market(commands.Cog):
         )
 
         await ctx.edit_original_response(embed=embed, view=view)
+
+    @app_commands.command(name="history")
+    @app_commands.guilds(COMMUNITY_GUILD_ID)
+    @app_commands.checks.dynamic_cooldown(cooldown)
+    async def _history(self, ctx: discord.Interaction):
+        """Shows the historical Nerva market data."""
+        # noinspection PyUnresolvedReferences
+        await ctx.response.defer(thinking=True)
+
+        collection = self.bot.db["xnv_historical_price_data"]
+
+        if (await collection.count_documents({})) == 0:
+            return await ctx.edit_original_response(
+                content="No historical data available yet."
+            )
+
+        entries = list()
+
+        async for document in collection.find().sort("date", -1).limit(100):
+            entry = {
+                "date": document["date"],
+                "opening_price": document["opening_price"],
+                "closing_price": document["closing_price"],
+                "high_price": document["high_price"],
+                "low_price": document["low_price"],
+                "total_volume": document["total_volume"],
+            }
+
+            entries.append(entry)
+
+        pages = TradeOgrePaginatorSource(entries=entries, ctx=ctx)
+        paginator = ViewMenuPages(
+            source=pages,
+            timeout=300,
+            delete_message_after=False,
+            clear_reactions_after=True,
+        )
+
+        await ctx.edit_original_response(content="\U0001F44C")
+        await paginator.start(ctx)
 
 
 async def setup(bot: RoboNerva) -> None:
