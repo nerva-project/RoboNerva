@@ -186,7 +186,9 @@ class AutoMod(commands.Cog):
                     f"blacklisted message match - {regex}."
                 )
 
-                collection = self.bot.db.get_collection("member_warnings")
+                collection = self.bot.db.get_collection(
+                    "member_blacklisted_message_warnings"
+                )
 
                 if await collection.find_one({"_id": message.author.id}):
                     await collection.update_one(
