@@ -99,7 +99,7 @@ class AutoPost(commands.Cog):
             discord.ui.Button(
                 label="X (Twitter)",
                 url="https://x.com/search?q=(%23Nerva%20OR%20%24XNV)%20OR%20"
-                    "(%40NervaCurrency)&src=typed_query&f=live",
+                "(%40NervaCurrency)&src=typed_query&f=live",
             )
         )
 
