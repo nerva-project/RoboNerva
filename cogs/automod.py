@@ -59,6 +59,8 @@ class AutoMod(commands.Cog):
     async def _auto_mod_prune_inactive(self):
         guild = self.bot.get_guild(COMMUNITY_GUILD_ID)
 
+        collection = self.bot.db.get_collection("member_inactivity_warnings")
+
         async for member in guild.fetch_members(limit=None):
             if member.bot or is_admin(member):
                 continue
@@ -93,30 +95,72 @@ class AutoMod(commands.Cog):
                 continue
 
             if (datetime.now(UTC) - oldest_message.created_at).days > 180:
-                self.bot.log.info(f"Kicking {member} for being inactive for 6M.")
+                warnings = await collection.find_one({"_id": member.id})
 
-                # await member.kick(reason="Inactive for 6M.")
+                if warnings is not None and warnings["count"] >= 2:
+                    self.bot.log.info(f"Kicking {member} for being inactive for 6M.")
 
-                await self.bot.webhook.send(
-                    f"[SANDBOX] **{member}** has been kicked for being inactive for 6M.\n"
-                    f"Oldest message: {oldest_message.jump_url}\n"
-                    f"Days since last message: {(datetime.now(UTC) - oldest_message.created_at).days}"
-                )
+                    # await member.kick(reason="Inactive for 6M.")
 
-            elif (datetime.now(UTC) - oldest_message.created_at).days > 179:
-                try:
-                    await member.send(
-                        "Hi! This is a friendly reminder that you have been inactive "
-                        "for the last 6 months in the Nerva community server. "
-                        f"You have not sent any message since `{oldest_message.created_at}`. "
-                        "If you would like to stay please post something within the next "
-                        "three days, or else I will remove you."
+                    await collection.delete_one({"_id": member.id})
+
+                    await self.bot.webhook.send(
+                        f"[SANDBOX] **{member}** has been kicked for being inactive for 6M.\n"
+                        f"Oldest message: {oldest_message.jump_url}\n"
+                        f"Days since last message: {(datetime.now(UTC) - oldest_message.created_at).days}"
                     )
 
-                except (discord.Forbidden, discord.errors.Forbidden):
-                    pass
+                else:
+                    if warnings is not None and warnings["count"] == 1:
+                        self.bot.log.info(
+                            f"Warning {member} for being inactive for 6M. "
+                            f"Warning count: 2/2."
+                        )
 
-            elif (datetime.now(UTC) - oldest_message.created_at).days > 177:
+                        await collection.update_one(
+                            {"_id": member.id}, {"$inc": {"count": 1}}
+                        )
+
+                        await member.send(
+                            "Hi! This is a friendly reminder that you have been inactive "
+                            "for the last 6 months in the Nerva community server. "
+                            f"You have not sent any message since `{oldest_message.created_at}`. "
+                            "If you would like to stay please post something within the next "
+                            "24 hours, or else I will remove you."
+                        )
+
+                    else:
+                        self.bot.log.info(
+                            f"Warning {member} for being inactive for 6M. "
+                            f"Warning count: 1/2."
+                        )
+
+                        await collection.insert_one({"_id": member.id, "count": 1})
+
+                        await member.send(
+                            "Hi! This is a friendly reminder that you have been inactive "
+                            "for the last 6 months in the Nerva community server. "
+                            f"You have not sent any message since `{oldest_message.created_at}`. "
+                            "If you would like to stay please post something within the next "
+                            "three days, or else I will remove you."
+                        )
+
+            elif (datetime.now(UTC) - oldest_message.created_at).days > 179:
+                self.bot.log.info(
+                    f"Warning {member} for being inactive for 6M. "
+                    f"Warning count: 2/2."
+                )
+
+                warnings = await collection.find_one({"_id": member.id})
+
+                if warnings is not None:
+                    await collection.update_one(
+                        {"_id": member.id}, {"$inc": {"count": 1}}
+                    )
+
+                else:
+                    await collection.insert_one({"_id": member.id, "count": 1})
+
                 try:
                     await member.send(
                         "Hi! This is a friendly reminder that you have been inactive "
@@ -124,6 +168,31 @@ class AutoMod(commands.Cog):
                         f"You have not sent any message since `{oldest_message.created_at}`. "
                         "If you would like to stay please post something within the next "
                         "24 hours, or else I will remove you."
+                    )
+
+                except (discord.Forbidden, discord.errors.Forbidden):
+                    pass
+
+            elif (datetime.now(UTC) - oldest_message.created_at).days > 177:
+                self.bot.log.info(
+                    f"Warning {member} for being inactive for 6M. "
+                    f"Warning count: 1/2."
+                )
+
+                warnings = await collection.find_one({"_id": member.id})
+
+                if warnings:
+                    await collection.delete_one({"_id": member.id})
+
+                await collection.insert_one({"id": member.id, "count": 1})
+
+                try:
+                    await member.send(
+                        "Hi! This is a friendly reminder that you have been inactive "
+                        "for the last 6 months in the Nerva community server. "
+                        f"You have not sent any message since `{oldest_message.created_at}`. "
+                        "If you would like to stay please post something within the next "
+                        "three days, or else I will remove you."
                     )
 
                 except (discord.Forbidden, discord.errors.Forbidden):
@@ -172,6 +241,19 @@ class AutoMod(commands.Cog):
         if message.author.bot or is_admin(message.author):
             return
 
+        collection = self.bot.db.get_collection("member_inactivity_warnings")
+
+        if await collection.find_one({"_id": message.author.id}):
+            await collection.delete_one({"_id": message.author.id})
+
+            try:
+                await message.author.send(
+                    "Hi! Your post has been noted. Thank you for choosing to stay with us."
+                )
+
+            except (discord.Forbidden, discord.errors.Forbidden):
+                pass
+
         for regex in MESSAGE_BLACKLIST_REGEX:
             if re.search(regex, message.content, re.IGNORECASE):
                 self.bot.log.info(
@@ -192,17 +274,15 @@ class AutoMod(commands.Cog):
 
                 if await collection.find_one({"_id": message.author.id}):
                     await collection.update_one(
-                        {"_id": message.author.id}, {"$inc": {"warnings": 1}}
+                        {"_id": message.author.id}, {"$inc": {"count": 1}}
                     )
 
                 else:
                     await collection.insert_one(
-                        {"_id": message.author.id, "warnings": 1}
+                        {"_id": message.author.id, "count": 1}
                     )
 
-                if await collection.find_one(
-                    {"_id": message.author.id, "warnings": 3}
-                ):
+                if await collection.find_one({"_id": message.author.id, "count": 3}):
                     self.bot.log.info(
                         f"Banning {message.author} for having 3 warnings for blacklisted messages."
                     )
@@ -232,7 +312,13 @@ class AutoMod(commands.Cog):
                 else:
                     warning_count = (
                         await collection.find_one({"_id": message.author.id})
-                    )["warnings"]
+                    )["count"]
+
+                    self.bot.log.info(
+                        f"Warning {message.author} for blacklisted message match. "
+                        f"Matched regex: {regex}. "
+                        f"Warning count: {warning_count}/3."
+                    )
 
                     try:
                         await message.author.send(
