@@ -35,9 +35,8 @@ class Verification(commands.Cog):
         view.add_item(VerifyButton())
 
         await welcome_channel.send(
-            f"Welcome, {member.mention}! Please read the instructions in "
-            f"<#{self.bot.config.RULES_CHANNEL_ID}>, and then press the button below "
-            f"in order to get verified and have access to the rest of the server.",
+            f"Welcome, {member.mention}! Please read <#{self.bot.config.RULES_CHANNEL_ID}>, "
+            f"and then press the **Verify** button below to get access to the rest of the server.",
             view=view,
         )
 

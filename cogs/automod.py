@@ -106,8 +106,11 @@ class AutoMod(commands.Cog):
             elif (datetime.now(UTC) - oldest_message.created_at).days > 179:
                 try:
                     await member.send(
-                        "You have been inactive for the last 6 months in the Nerva community server. "
-                        "You will be kicked tomorrow if you do not send at least one message."
+                        "Hi! This is a friendly reminder that you have been inactive "
+                        "for the last 6 months in the Nerva community server. "
+                        f"You have not sent any message since `{oldest_message.created_at}`. "
+                        "If you would like to stay please post something within the next "
+                        "three days, or else I will remove you."
                     )
 
                 except (discord.Forbidden, discord.errors.Forbidden):
@@ -116,8 +119,11 @@ class AutoMod(commands.Cog):
             elif (datetime.now(UTC) - oldest_message.created_at).days > 177:
                 try:
                     await member.send(
-                        "You have been inactive for the last 6 months in the Nerva community server. "
-                        "You will be kicked in 3 days if you do not send at least one message."
+                        "Hi! This is a friendly reminder that you have been inactive "
+                        "for the last 6 months in the Nerva community server. "
+                        f"You have not sent any message since `{oldest_message.created_at}`. "
+                        "If you would like to stay please post something within the next "
+                        "24 hours, or else I will remove you."
                     )
 
                 except (discord.Forbidden, discord.errors.Forbidden):

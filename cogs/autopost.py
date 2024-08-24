@@ -98,7 +98,8 @@ class AutoPost(commands.Cog):
         view.add_item(
             discord.ui.Button(
                 label="X (Twitter)",
-                url="https://x.com/search?q=(%23Nerva%20OR%20%24XNV)%20OR%20(%40NervaCurrency)&src=typed_query&f=live",
+                url="https://x.com/search?q=(%23Nerva%20OR%20%24XNV)%20OR%20"
+                    "(%40NervaCurrency)&src=typed_query&f=live",
             )
         )
 
