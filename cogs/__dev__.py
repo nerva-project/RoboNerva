@@ -5,7 +5,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from utils.tools import is_admin
+from utils.tools import is_developer
 
 from config import COMMUNITY_GUILD_ID
 
@@ -31,9 +31,9 @@ class Dev(commands.Cog):
         # noinspection PyUnresolvedReferences
         await ctx.response.defer(thinking=True)
 
-        if not is_admin(ctx.user):
+        if not is_developer(ctx.user):
             return await ctx.edit_original_response(
-                content="Only admins can use this command."
+                content="Only developers can use this command."
             )
 
         try:
@@ -65,9 +65,9 @@ class Dev(commands.Cog):
         # noinspection PyUnresolvedReferences
         await ctx.response.defer(thinking=True)
 
-        if not is_admin(ctx.user):
+        if not is_developer(ctx.user):
             return await ctx.edit_original_response(
-                content="Only admins can use this command."
+                content="Only developers can use this command."
             )
 
         try:
@@ -94,9 +94,9 @@ class Dev(commands.Cog):
         # noinspection PyUnresolvedReferences
         await ctx.response.defer(thinking=True)
 
-        if not is_admin(ctx.user):
+        if not is_developer(ctx.user):
             return await ctx.edit_original_response(
-                content="Only admins can use this command."
+                content="Only developers can use this command."
             )
 
         try:
@@ -116,9 +116,9 @@ class Dev(commands.Cog):
         # noinspection PyUnresolvedReferences
         await ctx.response.defer(thinking=True)
 
-        if not is_admin(ctx.user):
+        if not is_developer(ctx.user):
             return await ctx.edit_original_response(
-                content="Only admins can use this command."
+                content="Only developers can use this command."
             )
 
         await self.bot.tree.sync(guild=ctx.guild)

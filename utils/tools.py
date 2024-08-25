@@ -4,12 +4,17 @@ import validators
 
 import discord
 
-from config import ADMIN_ROLE_IDS
+from config import ADMIN_ROLE_IDS, DEVELOPER_USER_IDS
 
 
 def is_admin(member: discord.Member) -> bool:
     """Check if user is admin."""
     return any(role.id in ADMIN_ROLE_IDS for role in member.roles)
+
+
+def is_developer(member: discord.Member) -> bool:
+    """Check if user is developer."""
+    return member.id in DEVELOPER_USER_IDS
 
 
 def validate_tweet_links(tweet_links: list[str]) -> bool:
