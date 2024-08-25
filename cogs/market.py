@@ -299,11 +299,11 @@ class Market(commands.Cog):
         async for document in collection.find().sort("date", -1).limit(100):
             entry = {
                 "date": document["date"],
-                "opening_price": document["opening_price"],
-                "closing_price": document["closing_price"],
-                "high_price": document["high_price"],
-                "low_price": document["low_price"],
-                "total_volume": document["total_volume"],
+                "opening": document["opening"],
+                "closing": document["closing"],
+                "high": document["high"],
+                "low": document["low"],
+                "volume": document["volume"],
             }
 
             entries.append(entry)
