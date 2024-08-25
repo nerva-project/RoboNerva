@@ -17,12 +17,9 @@ class HistoricalPricePaginatorSource(ListPageSource):
         self,
         entries: list,
         ctx: discord.Interaction,
-        per_page: Optional[int] = 5,
+        per_page: Optional[int] = 1,
     ):
-        entries = [
-            tuple(entries[i : i + per_page])
-            for i in range(0, len(entries), per_page)
-        ]
+        entries = [tuple(entries[i : i + 5]) for i in range(0, len(entries), 5)]
         super().__init__(list(enumerate(entries, 1)), per_page=per_page)
 
         self.ctx = ctx
@@ -36,7 +33,8 @@ class HistoricalPricePaginatorSource(ListPageSource):
 
         embed.set_author(name="RoboNerva", icon_url=self.ctx.guild.me.avatar.url)
         embed.set_thumbnail(
-            url="https://nerva.one/content/images/tradeogre-logo.png"
+            url="https://encrypted-tbn0.gstatic.com/images?"
+            "q=tbn:ANd9GcT9xV6Ut4_LMNqb9umIAXW3eu7-unDOiLeNjg&s"
         )
 
         for entry in item:
@@ -52,7 +50,7 @@ class HistoricalPricePaginatorSource(ListPageSource):
                 inline=False,
             )
 
-        embed.set_footer(text=f"Entry {page_no}/{self.total_pages}")
+        embed.set_footer(text=f"Page {page_no}/{self.total_pages}")
 
         return embed
 
