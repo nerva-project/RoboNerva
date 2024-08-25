@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 import discord
 from discord import ui
@@ -10,6 +10,9 @@ from config import (
     TIPBOT_USER_ID,
     TIPBOT_CHANNEL_ID,
 )
+
+if TYPE_CHECKING:
+    from motor import MotorCollection
 
 
 class EvalModal(ui.Modal, title="Evaluate Code"):
@@ -102,6 +105,8 @@ class VerificationModal(ui.Modal, title="User Verification"):
     ctx: Optional[discord.Interaction] = None
     interaction: Optional[discord.Interaction] = None
 
+    collection: MotorCollection = None
+
     timeout: int = 5 * 60
 
     text = ui.TextInput(
@@ -114,14 +119,15 @@ class VerificationModal(ui.Modal, title="User Verification"):
         self.interaction = ctx
 
         # noinspection PyUnresolvedReferences
-        await ctx.response.defer(thinking=True)
+        await ctx.response.defer(thinking=True, ephemeral=True)
 
         if self.text.value.lower() != "i agree to the rules":
             await ctx.followup.send(
-                content="You must type 'I agree to the rules' to continue.",
-                ephemeral=True,
+                content="You must type 'I agree to the rules' to continue."
             )
             return
+
+        await ctx.delete_original_response()
 
         verified_user_role = ctx.guild.get_role(VERIFIED_USER_ROLE_ID)
         await ctx.user.add_roles(verified_user_role)
@@ -129,17 +135,28 @@ class VerificationModal(ui.Modal, title="User Verification"):
         unverified_user_role = ctx.guild.get_role(UNVERIFIED_USER_ROLE_ID)
         await ctx.user.remove_roles(unverified_user_role)
 
-        tipbot = ctx.guild.get_member(TIPBOT_USER_ID)
-        tipbot_channel = ctx.guild.get_channel(TIPBOT_CHANNEL_ID)
+        if (await self.collection.find_one({"_id": ctx.user.id})) is None:
+            await self.collection.insert_one({"_id": ctx.user.id, "verified": True})
 
-        await ctx.followup.send(
-            content=f"{tipbot.mention} tip 1.00 XNV {ctx.user.mention}. "
-            f"Welcome to the <:nerva:1274417479606603776> community server. "
-            f"You're now verified. Here's 1 XNV to get you started. "
-            f"Head over to {tipbot_channel.mention} for help with these funds. "
-            f"Enjoy your stay!",
-            ephemeral=True,
-        )
+            tipbot = ctx.guild.get_member(TIPBOT_USER_ID)
+            tipbot_channel = ctx.guild.get_channel(TIPBOT_CHANNEL_ID)
+
+            await ctx.channel.send(
+                content=f"{tipbot.mention} tip 1.00 XNV {ctx.user.mention}. "
+                f"Welcome to the <:nerva:1274417479606603776> community server. "
+                f"You're now verified. Here's 1 XNV to get you started. "
+                f"Head over to {tipbot_channel.mention} for help with these funds. "
+                f"Enjoy your stay!"
+            )
+
+        else:
+            await self.collection.update_one(
+                {"_id": ctx.user.id}, {"$set": {"verified": True}}
+            )
+
+            await ctx.channel.send(
+                content=f"Welcome back, {ctx.user.mention}! You're now verified.",
+            )
 
     async def on_timeout(self) -> None:
         await self.ctx.followup.send(

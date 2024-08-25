@@ -32,13 +32,27 @@ class Verification(commands.Cog):
         await member.add_roles(unverified_user_role)
 
         view = discord.ui.View()
-        view.add_item(VerifyButton())
+        button = VerifyButton()
+        button.collection = self.bot.db.get_collection("guild_members")
+        view.add_item(button)
 
         await welcome_channel.send(
             f"Welcome, {member.mention}! Please read <#{self.bot.config.RULES_CHANNEL_ID}>, "
             f"and then press the **Verify** button below to get access to the rest of the server.",
             view=view,
         )
+
+    @commands.Cog.listener()
+    async def on_member_remove(self, member: discord.Member) -> None:
+        collection = self.bot.db.get_collection("guild_members")
+
+        if collection.find_one({"_id": member.id}):
+            await collection.update_one(
+                {"_id": member.id}, {"$set": {"verified": False}}
+            )
+
+        else:
+            await collection.insert_one({"_id": member.id, "verified": False})
 
     @app_commands.command(name="revoke")
     @app_commands.guilds(COMMUNITY_GUILD_ID)
