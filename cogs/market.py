@@ -282,7 +282,7 @@ class Market(commands.Cog):
     @app_commands.command(name="history")
     @app_commands.guilds(COMMUNITY_GUILD_ID)
     @app_commands.checks.dynamic_cooldown(cooldown)
-    async def _history(self, ctx: discord.Interaction):
+    async def _history(self, ctx: discord.Interaction, days: int = 7):
         """Shows the historical Nerva market data."""
         # noinspection PyUnresolvedReferences
         await ctx.response.defer(thinking=True)
@@ -296,7 +296,7 @@ class Market(commands.Cog):
 
         entries = list()
 
-        async for document in collection.find().sort("date", -1).limit(100):
+        async for document in collection.find().sort("date", -1).limit(days):
             entry = {
                 "date": document["date"],
                 "opening": document["opening"],

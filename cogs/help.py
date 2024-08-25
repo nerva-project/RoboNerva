@@ -43,7 +43,7 @@ class Help(commands.Cog):
 
         embed.add_field(
             name="Market",
-            value=f"`/coingecko`, `/tradeogre`, `/xeggex`",
+            value=f"`/coingecko`, `/tradeogre`, `/xeggex`, `/history`",
             inline=False,
         )
 
