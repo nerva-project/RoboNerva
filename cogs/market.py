@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from datetime import time, datetime, timedelta
+from datetime import time, datetime, timedelta, UTC
 
 import aiohttp
 from dateutil.parser import parse
@@ -26,7 +26,7 @@ class Market(commands.Cog):
 
     @tasks.loop(time=time(hour=MARKET_HISTORY_HOURS_AFTER_UTC))
     async def _store_historical_data(self):
-        yesterday_date = datetime.now() - timedelta(days=1)
+        yesterday_date = datetime.now(UTC) - timedelta(days=1)
 
         start_timestamp = int(
             yesterday_date.replace(
@@ -55,17 +55,17 @@ class Market(commands.Cog):
                     closing_price = None
                     high_price = None
                     low_price = None
-                    total_volume = None
+                    volume = None
 
                 else:
                     prices = data["prices"]
-                    total_volumes = data.get("total_volumes", [])
+                    volumes = data["total_volumes"]
 
                     opening_price = prices[0][1]
                     closing_price = prices[-1][1]
                     high_price = max([price[1] for price in prices])
                     low_price = min([price[1] for price in prices])
-                    total_volume = sum([volume[1] for volume in total_volumes])
+                    volume = volumes[0][1]
 
                 await collection.insert_one(
                     {
@@ -76,7 +76,7 @@ class Market(commands.Cog):
                         "closing": round(closing_price, 4),
                         "high": round(high_price, 4),
                         "low": round(low_price, 4),
-                        "volume": round(total_volume),
+                        "volume": round(volume),
                     }
                 )
 
