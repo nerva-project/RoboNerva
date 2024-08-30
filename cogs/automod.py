@@ -45,7 +45,7 @@ class AutoMod(commands.Cog):
             if (datetime.now(UTC) - member.joined_at).days >= 1:
                 self.bot.log.info(f"Kicking {member} for not verifying within 24h.")
 
-                # await member.kick(reason="Not verified within 24h.")
+                await member.kick(reason="Not verified within 24h.")
 
                 await self.bot.webhook.send(
                     f"**{member}** has been kicked for not verifying within 24h."
