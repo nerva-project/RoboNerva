@@ -135,7 +135,8 @@ class AutoPost(commands.Cog):
 
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=nerva"
+                "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=nerva",
+                headers={"x-cg-demo-api-key": self.bot.config.COINGECKO_API_KEY},
             ) as res:
                 data = await res.json()
 

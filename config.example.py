@@ -17,6 +17,8 @@ DEVELOPER_USER_IDS = [...]
 
 MONGODB_URI = "mongodb_uri"
 
+COINGECKO_API_KEY = "coingecko_api_key"
+
 GITHUB_TOKEN = "github_token"
 
 TWITTER_USERNAME = "twitter_username"

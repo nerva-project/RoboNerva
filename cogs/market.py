@@ -44,6 +44,7 @@ class Market(commands.Cog):
         async with aiohttp.ClientSession() as session:
             async with session.get(
                 "https://api.coingecko.com/api/v3/coins/nerva/market_chart/range",
+                    headers={"x-cg-demo-api-key": self.bot.config.COINGECKO_API_KEY},
                 params=params,
             ) as res:
                 data = await res.json()
@@ -69,7 +70,7 @@ class Market(commands.Cog):
 
                 await collection.insert_one(
                     {
-                        "date": yesterday_date.replace(
+                        "_id": yesterday_date.replace(
                             hour=0, minute=0, second=0, microsecond=0
                         ),
                         "opening": round(opening_price, 4),
@@ -109,7 +110,8 @@ class Market(commands.Cog):
 
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=nerva"
+                "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=nerva",
+                    headers={"x-cg-demo-api-key": self.bot.config.COINGECKO_API_KEY},
             ) as res:
                 data = await res.json()
 
@@ -296,9 +298,9 @@ class Market(commands.Cog):
 
         entries = list()
 
-        async for document in collection.find().sort("date", -1).limit(days):
+        async for document in collection.find().sort("_id", -1).limit(days):
             entry = {
-                "date": document["date"],
+                "date": document["_id"],
                 "opening": document["opening"],
                 "closing": document["closing"],
                 "high": document["high"],
