@@ -1,4 +1,7 @@
-TOKEN = "bot_token"
+DISCORD_TOKEN = "bot_token"
+TELEGRAM_TOKEN = "telegram_token"
+
+TELEGRAM_CHAT_ID = -1001234567890
 
 EMBED_COLOR = 0x00000
 

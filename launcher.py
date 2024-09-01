@@ -8,10 +8,11 @@ from datetime import datetime
 
 import click
 import motor.motor_asyncio
+from telegram import Bot
 
 import discord
 
-from config import MONGODB_URI
+from config import TELEGRAM_TOKEN, MONGODB_URI
 from bot import RoboNerva
 
 try:
@@ -81,6 +82,7 @@ async def run_bot():
 
     async with RoboNerva() as bot:
         bot.log = log
+        bot.tg = Bot(token=TELEGRAM_TOKEN)
         bot.db = client.get_database("RoboNerva")
         await bot.start()
 

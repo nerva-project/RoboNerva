@@ -5,8 +5,10 @@ from datetime import datetime, time, UTC
 
 import aiohttp
 
-# import twikit
+import twikit
 from dateutil.parser import parse
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.error import TelegramError
 
 import discord
 from discord import app_commands
@@ -61,7 +63,6 @@ class AutoPost(commands.Cog):
             embed.description += "\n"
 
         else:
-            """
             try:
                 client = twikit.Client("en-US")
 
@@ -82,9 +83,6 @@ class AutoPost(commands.Cog):
             embed.description = (
                 f"Interact on X:\n\nhttps://x.com/NervaCurrency/status/{post_id}\n\n"
             )
-            """
-
-            return
 
         embed.description += (
             "Search for crypto related tweets and plug Nerva where appropriate "
@@ -110,6 +108,36 @@ class AutoPost(commands.Cog):
 
         await collection.delete_many({})
         await channel.send("@everyone", embed=embed, view=view)
+
+        try:
+            keyboard = [
+                [
+                    InlineKeyboardButton(
+                        "CoinMarketLeague",
+                        url="https://coinmarketleague.com/coin/nerva",
+                    ),
+                    InlineKeyboardButton(
+                        "X (Twitter)",
+                        url="https://x.com/search?q=(%23Nerva%20OR%20%24XNV)%20OR%20"
+                        "(%40NervaCurrency)&src=typed_query&f=live",
+                    ),
+                ]
+            ]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+
+            message = await self.bot.tg.send_message(
+                chat_id=self.bot.config.TELEGRAM_CHAT_ID,
+                text=f"Daily Tasks - {embed.title}\n\n{embed.description}",
+                reply_markup=reply_markup,
+            )
+
+            await self.bot.tg.pin_chat_message(
+                chat_id=self.bot.config.TELEGRAM_CHAT_ID,
+                message_id=message.message_id,
+            )
+
+        except TelegramError as e:
+            self.bot.log.error(f"Telegram error: {e}")
 
     @_autopost_vote_reminder.before_loop
     async def _before_autopost_vote_reminder(self) -> None:

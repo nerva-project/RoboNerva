@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 import random
 import logging
@@ -15,16 +15,20 @@ from discord.ext import commands, tasks
 
 import config
 
+if TYPE_CHECKING:
+    from telegram import Bot
+
 
 class RoboNerva(commands.AutoShardedBot):
     user: discord.ClientUser
+    tg: Bot
     db: motor.MotorDatabase
     bot_app_info: discord.AppInfo
     session: aiohttp.ClientSession
     log: logging.Logger
 
     def __init__(self):
-        description = "FumeStop Community Manager."
+        description = "Community manager bot for the Nerva (XNV) cryptocurrency."
 
         intents = discord.Intents.all()
 
@@ -100,7 +104,7 @@ class RoboNerva(commands.AutoShardedBot):
             )
 
     async def start(self, **kwargs) -> None:
-        await super().start(config.TOKEN, reconnect=True)
+        await super().start(config.DISCORD_TOKEN, reconnect=True)
 
     async def close(self) -> None:
         self._update_seed_nodes.cancel()
