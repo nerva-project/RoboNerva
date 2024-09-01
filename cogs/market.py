@@ -77,7 +77,7 @@ class Market(commands.Cog):
                         "closing": round(closing_price, 4),
                         "high": round(high_price, 4),
                         "low": round(low_price, 4),
-                        "volume": round(volume),
+                        "volume": round(volume, 2),
                     }
                 )
 
@@ -142,7 +142,8 @@ class Market(commands.Cog):
                     value=f"{round(float(data[0]['price_change_percentage_24h']), 2)}%",
                 )
                 embed.add_field(
-                    name="24h Trading Volume", value=f"${data[0]['total_volume']}"
+                    name="24h Trading Volume",
+                    value=f"${round(float(data[0]['total_volume']), 4)}",
                 )
                 embed.add_field(
                     name="Circulating Supply",
@@ -189,7 +190,7 @@ class Market(commands.Cog):
                     "last_price": f"{round(float(data['price']) * 100_000_000)} sat",
                     "bid": f"{round(float(data['bid']) * 100_000_000)} sat",
                     "ask": f"{round(float(data['ask']) * 100_000_000)} sat",
-                    "volume": f"{round(float(data['volume']), 5)} BTC",
+                    "volume": f"{float(data['volume'])} BTC",
                     "high": f"{round(float(data['high']) * 100_000_000)} sat",
                     "low": f"{round(float(data['low']) * 100_000_000)} sat",
                 }
@@ -206,7 +207,7 @@ class Market(commands.Cog):
                     "last_price": f"${round(float(data['price']), 4)}",
                     "bid": f"${round(float(data['bid']), 4)}",
                     "ask": f"${round(float(data['ask']), 4)}",
-                    "volume": f"${round(float(data['volume']), 4)}",
+                    "volume": f"${round(float(data['volume']), 2)}",
                     "high": f"${round(float(data['high']), 4)}",
                     "low": f"${round(float(data['low']), 4)}",
                 }
@@ -257,7 +258,7 @@ class Market(commands.Cog):
                     name="Ask", value=f"${round(float(data['bestAsk']), 4)}"
                 )
                 embed.add_field(
-                    name="Volume", value=f"{round(float(data['volume']), 4)}"
+                    name="Volume", value=f"{round(float(data['volume']), 2)}"
                 )
                 embed.add_field(
                     name="High", value=f"${round(float(data['highPrice']), 4)}"

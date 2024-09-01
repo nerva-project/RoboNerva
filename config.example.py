@@ -16,6 +16,7 @@ ADMIN_ROLE_IDS = [...]
 DEVELOPER_USER_IDS = [...]
 
 MONGODB_URI = "mongodb_uri"
+MONGODB_DATABASE = "mongodb_database"
 
 COINGECKO_API_KEY = "coingecko_api_key"
 
