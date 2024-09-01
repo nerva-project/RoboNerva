@@ -81,6 +81,10 @@ class Market(commands.Cog):
                     }
                 )
 
+                self.bot.log.info(
+                    f"Stored historical data for {yesterday_date.strftime('%Y-%m-%d')}"
+                )
+
     @_store_historical_data.before_loop
     async def _before_store_historical_data(self):
         await self.bot.wait_until_ready()
