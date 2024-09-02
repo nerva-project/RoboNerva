@@ -13,13 +13,7 @@ from utils.tools import is_admin
 if TYPE_CHECKING:
     from bot import RoboNerva
 
-from config import (
-    COMMUNITY_GUILD_ID,
-    UNVERIFIED_USER_ROLE_ID,
-    VERIFIED_USER_ROLE_ID,
-    NAME_BLACKLIST_REGEX,
-    MESSAGE_BLACKLIST_REGEX,
-)
+from config import COMMUNITY_GUILD_ID
 
 
 class AutoMod(commands.Cog):
@@ -29,8 +23,8 @@ class AutoMod(commands.Cog):
     @tasks.loop(hours=24)
     async def _auto_mod_check_verified(self):
         guild = self.bot.get_guild(COMMUNITY_GUILD_ID)
-        unverified_role = guild.get_role(UNVERIFIED_USER_ROLE_ID)
-        verified_role = guild.get_role(VERIFIED_USER_ROLE_ID)
+        unverified_role = guild.get_role(self.bot.config.UNVERIFIED_USER_ROLE_ID)
+        verified_role = guild.get_role(self.bot.config.VERIFIED_USER_ROLE_ID)
 
         async for member in guild.fetch_members(limit=None):
             if member.bot or is_admin(member):
@@ -215,7 +209,7 @@ class AutoMod(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member) -> None:
-        for regex in NAME_BLACKLIST_REGEX:
+        for regex in self.bot.config.NAME_BLACKLIST_REGEX:
             if re.search(regex, member.display_name, re.IGNORECASE):
                 self.bot.log.info(
                     f"Banning {member} for having a blacklisted name match - {regex}."
@@ -230,10 +224,38 @@ class AutoMod(commands.Cog):
                 except (discord.Forbidden, discord.errors.Forbidden):
                     pass
 
-                # await member.ban(reason=f"Blacklisted name match - {regex}.")
+                await member.ban(reason=f"Blacklisted name match - {regex}.")
 
                 await self.bot.webhook.send(
                     f"**{member}** has been banned for having a blacklisted name match - {regex}."
+                )
+
+    @commands.Cog.listener()
+    async def on_member_update(
+        self, before: discord.Member, after: discord.Member
+    ) -> None:
+        if before.display_name == after.display_name:
+            return
+
+        for regex in self.bot.config.NAME_BLACKLIST_REGEX:
+            if re.search(regex, after.display_name, re.IGNORECASE):
+                self.bot.log.info(
+                    f"Kicking {after} for having a blacklisted name match - {regex}."
+                )
+
+                try:
+                    await after.send(
+                        f"You have been kicked from the Nerva community server "
+                        f"for having a blacklisted name match - {regex}."
+                    )
+
+                except (discord.Forbidden, discord.errors.Forbidden):
+                    pass
+
+                await after.kick(reason=f"Blacklisted name match - {regex}.")
+
+                await self.bot.webhook.send(
+                    f"**{after}** has been kicked for having a blacklisted name match - {regex}."
                 )
 
     @commands.Cog.listener()
@@ -254,14 +276,14 @@ class AutoMod(commands.Cog):
             except (discord.Forbidden, discord.errors.Forbidden):
                 pass
 
-        for regex in MESSAGE_BLACKLIST_REGEX:
+        for regex in self.bot.config.MESSAGE_BLACKLIST_REGEX:
             if re.search(regex, message.content, re.IGNORECASE):
                 self.bot.log.info(
                     f"Deleting message from {message.author} for having a "
                     f"blacklisted message match - {regex}."
                 )
 
-                # await message.delete()
+                await message.delete()
 
                 await self.bot.webhook.send(
                     f"**{message.author}**'s message has been deleted for having a "
@@ -296,11 +318,9 @@ class AutoMod(commands.Cog):
                     except (discord.Forbidden, discord.errors.Forbidden):
                         pass
 
-                    """
                     await message.author.ban(
                         reason="3 warnings received for blacklisted message matches."
                     )
-                    """
 
                     await collection.delete_one({"_id": message.author.id})
 
