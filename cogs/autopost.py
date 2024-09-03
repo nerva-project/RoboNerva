@@ -284,6 +284,8 @@ class AutoPost(commands.Cog):
             )
 
         collection = self.bot.db.get_collection("autopost_tweet_links")
+
+        await collection.delete_many({})
         await collection.insert_one(
             {
                 "tweet_link_1": modal.tweet_link_1.value,
