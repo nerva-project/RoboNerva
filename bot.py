@@ -51,6 +51,8 @@ class RoboNerva(commands.AutoShardedBot):
         try:
             answers = await dns.asyncresolver.resolve("seed.nerva.one", "TXT")
 
+            self._seed_nodes.clear()
+
             for rdata in answers:
                 self._seed_nodes.append(rdata.to_text().strip('"'))
 
@@ -61,6 +63,8 @@ class RoboNerva(commands.AutoShardedBot):
     async def _update_api_nodes(self) -> None:
         try:
             answers = await dns.asyncresolver.resolve("api_url.nerva.one", "TXT")
+
+            self._api_nodes.clear()
 
             for rdata in answers:
                 self._api_nodes.append(rdata.to_text().strip('"'))
