@@ -53,50 +53,68 @@ class AutoMod(commands.Cog):
     async def _auto_mod_prune_inactive(self):
         guild = self.bot.get_guild(COMMUNITY_GUILD_ID)
 
-        collection = self.bot.db.get_collection("member_inactivity_warnings")
+        member_collection = self.bot.db.get_collection("guild_members")
+        inactivity_collection = self.bot.db.get_collection(
+            "member_inactivity_warnings"
+        )
 
         async for member in guild.fetch_members(limit=None):
             if member.bot or is_admin(member):
                 continue
 
-            oldest_message = None
+            if (await member_collection.find_one({"_id": member.id})) is None or (
+                await member_collection.find_one({"_id": member.id})
+            )["last_message"] is None:
+                oldest_message = None
 
-            for channel in guild.text_channels:
-                messages = [
-                    message
-                    async for message in channel.history(
-                        limit=self.bot.config.AUTOMOD_CHANNEL_HISTORY_MESSAGE_LIMIT
-                    )
-                ]
-                user_messages = [
-                    message for message in messages if message.author == member
-                ]
-                user_messages.reverse()
+                try:
+                    for channel in guild.text_channels:
+                        messages = [
+                            message
+                            async for message in channel.history(
+                                limit=self.bot.config.AUTOMOD_CHANNEL_HISTORY_MESSAGE_LIMIT
+                            )
+                        ]
+                        user_messages = [
+                            message
+                            for message in messages
+                            if message.author == member
+                        ]
+                        user_messages.reverse()
 
-                if not user_messages:
+                        if not user_messages:
+                            continue
+
+                        message = user_messages[0]
+
+                        if oldest_message is None:
+                            oldest_message = message
+
+                        else:
+                            if message.created_at > oldest_message.created_at:
+                                oldest_message = message
+
+                except discord.errors.DiscordServerError:
                     continue
 
-                message = user_messages[0]
-
-                if oldest_message is None:
-                    oldest_message = message
-
-                else:
-                    if message.created_at > oldest_message.created_at:
-                        oldest_message = message
+            else:
+                data = await member_collection.find_one({"_id": member.id})
+                oldest_message = await guild.get_channel(
+                    data["last_message"]["channel_id"]
+                ).fetch_message(data["last_message"]["id"])
 
             if oldest_message is None:
                 continue
 
             if (datetime.now(UTC) - oldest_message.created_at).days > 180:
-                warnings = await collection.find_one({"_id": member.id})
+                warnings = await inactivity_collection.find_one({"_id": member.id})
 
                 if warnings is not None and warnings["count"] >= 2:
                     self.bot.log.info(f"Kicking {member} for being inactive for 6M.")
 
                     # await member.kick(reason="Inactive for 6M.")
 
-                    await collection.delete_one({"_id": member.id})
+                    await inactivity_collection.delete_one({"_id": member.id})
 
                     await self.bot.webhook.send(
                         f"[SANDBOX] **{member}** has been kicked for being inactive for 6M.\n"
@@ -111,7 +129,7 @@ class AutoMod(commands.Cog):
                             f"Warning count: 2/2."
                         )
 
-                        await collection.update_one(
+                        await inactivity_collection.update_one(
                             {"_id": member.id}, {"$inc": {"count": 1}}
                         )
 
@@ -129,7 +147,9 @@ class AutoMod(commands.Cog):
                             f"Warning count: 1/2."
                         )
 
-                        await collection.insert_one({"_id": member.id, "count": 1})
+                        await inactivity_collection.insert_one(
+                            {"_id": member.id, "count": 1}
+                        )
 
                         await member.send(
                             "Hi! This is a friendly reminder that you have been inactive "
@@ -145,15 +165,17 @@ class AutoMod(commands.Cog):
                     f"Warning count: 2/2."
                 )
 
-                warnings = await collection.find_one({"_id": member.id})
+                warnings = await inactivity_collection.find_one({"_id": member.id})
 
                 if warnings is not None:
-                    await collection.update_one(
+                    await inactivity_collection.update_one(
                         {"_id": member.id}, {"$inc": {"count": 1}}
                     )
 
                 else:
-                    await collection.insert_one({"_id": member.id, "count": 1})
+                    await inactivity_collection.insert_one(
+                        {"_id": member.id, "count": 1}
+                    )
 
                 try:
                     await member.send(
@@ -173,12 +195,12 @@ class AutoMod(commands.Cog):
                     f"Warning count: 1/2."
                 )
 
-                warnings = await collection.find_one({"_id": member.id})
+                warnings = await inactivity_collection.find_one({"_id": member.id})
 
                 if warnings:
-                    await collection.delete_one({"_id": member.id})
+                    await inactivity_collection.delete_one({"_id": member.id})
 
-                await collection.insert_one({"id": member.id, "count": 1})
+                await inactivity_collection.insert_one({"id": member.id, "count": 1})
 
                 try:
                     await member.send(
@@ -296,14 +318,14 @@ class AutoMod(commands.Cog):
             if re.search(regex, message.content, re.IGNORECASE):
                 self.bot.log.info(
                     f"Deleting message from {message.author} for having a "
-                    f"blacklisted message match - {regex}."
+                    f"blacklisted message match - `{regex}`."
                 )
 
                 await message.delete()
 
                 await self.bot.webhook.send(
                     f"**{message.author}**'s message has been deleted for having a "
-                    f"blacklisted message match - {regex}."
+                    f"blacklisted message match - `{regex}`."
                 )
 
                 collection = self.bot.db.get_collection(
@@ -352,8 +374,8 @@ class AutoMod(commands.Cog):
 
                     self.bot.log.info(
                         f"Warning {message.author} for blacklisted message match. "
-                        f"Matched regex: {regex}. "
-                        f"Warning count: {warning_count}/3."
+                        f"Matched regex: `{regex}`. "
+                        f"Warning count: **{warning_count}/3**."
                     )
 
                     try:
@@ -361,7 +383,7 @@ class AutoMod(commands.Cog):
                             "Your message has been deleted because it matched a blacklisted message.\n"
                             "Please refrain from posting such messages in the future.\n"
                             "You have received a warning for this message.\n"
-                            f"Warning count: {warning_count}/3\n"
+                            f"Warning count: **{warning_count}/3**\n"
                             "If you receive 3 warnings, you will be banned from the server.\n"
                             "If you believe this was a mistake, please contact a moderator."
                             "Your message:\n"
@@ -370,6 +392,33 @@ class AutoMod(commands.Cog):
 
                     except (discord.Forbidden, discord.errors.Forbidden):
                         pass
+
+        collection = self.bot.db.get_collection("guild_members")
+
+        if (await collection.find_one({"_id": message.author.id})) is None:
+            await collection.insert_one(
+                {
+                    "_id": message.author.id,
+                    "verified": True,
+                    "last_message": {
+                        "id": message.id,
+                        "channel_id": message.channel.id,
+                    },
+                }
+            )
+
+        else:
+            await collection.update_one(
+                {"_id": message.author.id},
+                {
+                    "$set": {
+                        "last_message": {
+                            "id": message.id,
+                            "channel_id": message.channel.id,
+                        }
+                    }
+                },
+            )
 
 
 async def setup(bot: RoboNerva) -> None:
