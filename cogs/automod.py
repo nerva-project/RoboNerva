@@ -209,10 +209,14 @@ class AutoMod(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member) -> None:
-        self.bot.log.info(f"Member join: {member}")
+        self.bot.log.info(f"Member join: {member} - {member.display_name}")
 
         for regex in self.bot.config.NAME_BLACKLIST_REGEX:
-            self.bot.log.info(f"Checking {member.display_name} against {regex}")
+            self.bot.log.info(
+                f"Checking {member.display_name} against {regex} - "
+                f"{bool(re.search(regex, member.display_name, re.IGNORECASE))}"
+            )
+
             if re.search(regex, member.display_name, re.IGNORECASE):
                 self.bot.log.info(
                     f"Banning {member} for having a blacklisted name match - {regex}."
@@ -221,7 +225,7 @@ class AutoMod(commands.Cog):
                 try:
                     await member.send(
                         f"You have been banned from the Nerva community server "
-                        f"for having a blacklisted name match - {regex}."
+                        f"for having a blacklisted name match - `{regex}`."
                     )
 
                 except (discord.Forbidden, discord.errors.Forbidden):
@@ -230,20 +234,26 @@ class AutoMod(commands.Cog):
                 await member.ban(reason=f"Blacklisted name match - {regex}.")
 
                 return await self.bot.webhook.send(
-                    f"**{member}** has been banned for having a blacklisted name match - {regex}."
+                    f"**{member}** has been banned for having a blacklisted name match - `{regex}`."
                 )
 
     @commands.Cog.listener()
     async def on_member_update(
         self, before: discord.Member, after: discord.Member
     ) -> None:
-        self.bot.log.info(f"Member update: {before} -> {after}")
+        self.bot.log.info(
+            f"Member update: {before.display_name} -> {after.display_name}"
+        )
 
         if before.display_name == after.display_name:
             return
 
         for regex in self.bot.config.NAME_BLACKLIST_REGEX:
-            self.bot.log.info(f"Checking {after.display_name} against {regex}")
+            self.bot.log.info(
+                f"Checking {after.display_name} against {regex} - "
+                f"{bool(re.search(regex, after.display_name, re.IGNORECASE))}"
+            )
+
             if re.search(regex, after.display_name, re.IGNORECASE):
                 self.bot.log.info(
                     f"Kicking {after} for having a blacklisted name match - {regex}."
@@ -251,17 +261,17 @@ class AutoMod(commands.Cog):
 
                 try:
                     await after.send(
-                        f"You have been kicked from the Nerva community server "
-                        f"for having a blacklisted name match - {regex}."
+                        f"You have been banned from the Nerva community server "
+                        f"for having a blacklisted name match - `{regex}`."
                     )
 
                 except (discord.Forbidden, discord.errors.Forbidden):
                     pass
 
-                await after.kick(reason=f"Blacklisted name match - {regex}.")
+                await after.ban(reason=f"Blacklisted name match - {regex}.")
 
                 return await self.bot.webhook.send(
-                    f"**{after}** has been kicked for having a blacklisted name match - {regex}."
+                    f"**{after}** has been banned for having a blacklisted name match - `{regex}`."
                 )
 
     @commands.Cog.listener()
