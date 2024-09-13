@@ -62,9 +62,11 @@ class AutoMod(commands.Cog):
             if member.bot or is_admin(member):
                 continue
 
-            if (await member_collection.find_one({"_id": member.id})) is None or (
+            if (
                 await member_collection.find_one({"_id": member.id})
-            )["last_message"] is None:
+            ) is None or "last_message" not in (
+                await member_collection.find_one({"_id": member.id})
+            ):
                 oldest_message = None
 
                 try:
@@ -104,7 +106,7 @@ class AutoMod(commands.Cog):
                         data["last_message"]["channel_id"]
                     ).fetch_message(data["last_message"]["id"])
 
-                except (KeyError, discord.errors.NotFound):
+                except discord.errors.NotFound:
                     oldest_message = None
 
             if oldest_message is None:
