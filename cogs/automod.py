@@ -273,9 +273,6 @@ class AutoMod(commands.Cog):
             f"Member update: {before.display_name} -> {after.display_name}"
         )
 
-        if before.display_name == after.display_name:
-            return
-
         for regex in self.bot.config.NAME_BLACKLIST_REGEX:
             self.bot.log.info(
                 f"Checking {after.display_name} against {regex} - "
