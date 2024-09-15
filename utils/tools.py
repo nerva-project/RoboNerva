@@ -9,11 +9,18 @@ from config import ADMIN_ROLE_IDS, DEVELOPER_USER_IDS
 
 def is_admin(member: discord.Member) -> bool:
     """Check if user is admin."""
+
+    if isinstance(member, discord.User):
+        return False
+
     return any(role.id in ADMIN_ROLE_IDS for role in member.roles)
 
 
 def is_developer(member: discord.Member) -> bool:
     """Check if user is developer."""
+    if isinstance(member, discord.User):
+        return False
+
     return member.id in DEVELOPER_USER_IDS
 
 
