@@ -402,7 +402,8 @@ class AutoMod(commands.Cog):
             await collection.insert_one(
                 {
                     "_id": message.author.id,
-                    "verified": True,
+                    "verified": (self.bot.config.VERIFIED_USER_ROLE_ID in [role.id for role in message.author.roles]),
+                    "tipped": False,
                     "last_message": {
                         "id": message.id,
                         "channel_id": message.channel.id,

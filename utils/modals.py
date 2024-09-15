@@ -136,7 +136,7 @@ class VerificationModal(ui.Modal, title="User Verification"):
         await ctx.user.remove_roles(unverified_user_role)
 
         if (await self.collection.find_one({"_id": ctx.user.id})) is None:
-            await self.collection.insert_one({"_id": ctx.user.id, "verified": True})
+            await self.collection.insert_one({"_id": ctx.user.id, "verified": True, "tipped": True})
 
             tipbot = ctx.guild.get_member(TIPBOT_USER_ID)
             tipbot_channel = ctx.guild.get_channel(TIPBOT_CHANNEL_ID)
@@ -145,6 +145,22 @@ class VerificationModal(ui.Modal, title="User Verification"):
                 content=f"{tipbot.mention} tip 1.00 XNV {ctx.user.mention}. "
                 f"Welcome to the <:nerva:1274417479606603776> community server. "
                 f"You're now verified. Here's 1 XNV to get you started. "
+                f"Head over to {tipbot_channel.mention} for help with these funds. "
+                f"Enjoy your stay!"
+            )
+
+        elif (await self.collection.find_one({"_id": ctx.user.id, "tipped": False})) is not None:
+            await self.collection.update_one(
+                {"_id": ctx.user.id}, {"$set": {"verified": True, "tipped": True}}
+            )
+
+            tipbot = ctx.guild.get_member(TIPBOT_USER_ID)
+            tipbot_channel = ctx.guild.get_channel(TIPBOT_CHANNEL_ID)
+
+            await ctx.channel.send(
+                content=f"{tipbot.mention} tip 1.00 XNV {ctx.user.mention}. "
+                f"Welcome back, {ctx.user.mention}! You're now verified. "
+                f"Here's 1 XNV to get you started. "
                 f"Head over to {tipbot_channel.mention} for help with these funds. "
                 f"Enjoy your stay!"
             )
