@@ -96,6 +96,23 @@ class AutoMod(commands.Cog):
                             if message.created_at > oldest_message.created_at:
                                 oldest_message = message
 
+                    if (
+                        await member_collection.find_one({"_id": member.id}) is None
+                        and oldest_message is not None
+                    ):
+                        await member_collection.update_one(
+                            {"_id": member.id},
+                            {
+                                "$set": {
+                                    "last_message": {
+                                        "id": oldest_message.id,
+                                        "channel_id": oldest_message.channel.id,
+                                    }
+                                }
+                            },
+                            upsert=True,
+                        )
+
                 except discord.errors.DiscordServerError:
                     continue
 
