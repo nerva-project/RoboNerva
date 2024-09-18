@@ -102,9 +102,14 @@ class AutoMod(commands.Cog):
             else:
                 try:
                     data = await member_collection.find_one({"_id": member.id})
-                    oldest_message = await guild.get_channel(
-                        data["last_message"]["channel_id"]
-                    ).fetch_message(data["last_message"]["id"])
+
+                    channel = await guild.fetch_channel(data["last_message"]["channel_id"])
+
+                    if channel is None:
+                        oldest_message = None
+
+                    else:
+                        oldest_message = await channel.fetch_message(data["last_message"]["id"])
 
                 except discord.errors.NotFound:
                     oldest_message = None
