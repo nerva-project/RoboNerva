@@ -128,6 +128,8 @@ class AutoMod(commands.Cog):
                         f"Days since last message: {(datetime.now(UTC) - oldest_message.created_at).days}"
                     )
 
+                    continue
+
                 else:
                     if warnings is not None and warnings["count"] == 1:
                         self.bot.log.info(
@@ -139,6 +141,13 @@ class AutoMod(commands.Cog):
                             {"_id": member.id}, {"$inc": {"count": 1}}
                         )
 
+                        await self.bot.webhook.send(
+                            f"**{member}** has been warned for being inactive for 6M. "
+                            f"Warning count: 2/2.\n"
+                            f"Oldest message: {oldest_message.jump_url}\n"
+                        )
+
+                        """
                         await member.send(
                             "Hi! This is a friendly reminder that you have been inactive "
                             "for the last 6 months in the Nerva community server. "
@@ -146,6 +155,8 @@ class AutoMod(commands.Cog):
                             "If you would like to stay please post something within the next "
                             "24 hours, or else I will remove you."
                         )
+                        """
+                        continue
 
                     else:
                         self.bot.log.info(
@@ -157,6 +168,13 @@ class AutoMod(commands.Cog):
                             {"_id": member.id, "count": 1}
                         )
 
+                        await self.bot.webhook.send(
+                            f"**{member}** has been warned for being inactive for 6M. "
+                            f"Warning count: 1/2.\n"
+                            f"Oldest message: {oldest_message.jump_url}\n"
+                        )
+
+                        """
                         await member.send(
                             "Hi! This is a friendly reminder that you have been inactive "
                             "for the last 6 months in the Nerva community server. "
@@ -164,6 +182,8 @@ class AutoMod(commands.Cog):
                             "If you would like to stay please post something within the next "
                             "three days, or else I will remove you."
                         )
+                        """
+                        continue
 
             elif (datetime.now(UTC) - oldest_message.created_at).days > 179:
                 self.bot.log.info(
@@ -183,6 +203,13 @@ class AutoMod(commands.Cog):
                         {"_id": member.id, "count": 1}
                     )
 
+                await self.bot.webhook.send(
+                    "Warning {member} for being inactive for 6M. "
+                    "Warning count: 2/2."
+                    f"Oldest message: {oldest_message.jump_url}"
+                )
+
+                """
                 try:
                     await member.send(
                         "Hi! This is a friendly reminder that you have been inactive "
@@ -194,6 +221,8 @@ class AutoMod(commands.Cog):
 
                 except (discord.Forbidden, discord.errors.Forbidden):
                     pass
+                """
+                continue
 
             elif (datetime.now(UTC) - oldest_message.created_at).days > 177:
                 self.bot.log.info(
@@ -208,6 +237,7 @@ class AutoMod(commands.Cog):
 
                 await inactivity_collection.insert_one({"id": member.id, "count": 1})
 
+                """
                 try:
                     await member.send(
                         "Hi! This is a friendly reminder that you have been inactive "
@@ -219,9 +249,11 @@ class AutoMod(commands.Cog):
 
                 except (discord.Forbidden, discord.errors.Forbidden):
                     pass
+                """
+                continue
 
             else:
-                pass
+                continue
 
     @_auto_mod_prune_inactive.before_loop
     async def _before_auto_mod_prune_inactive(self) -> None:
