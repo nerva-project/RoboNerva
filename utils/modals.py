@@ -163,7 +163,7 @@ class VerificationModal(ui.Modal, title="User Verification"):
 
             await ctx.channel.send(
                 content=f"{tipbot.mention} tip 1.00 XNV {ctx.user.mention}. "
-                f"Welcome back, {ctx.user.mention}! You're now verified. "
+                f"Welcome, {ctx.user.mention}! You're now verified. "
                 f"Here's 1 XNV to get you started. "
                 f"Head over to {tipbot_channel.mention} for help with these funds. "
                 f"Enjoy your stay!"
