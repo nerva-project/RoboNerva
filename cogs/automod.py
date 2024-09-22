@@ -135,6 +135,9 @@ class AutoMod(commands.Cog):
                 except discord.errors.NotFound:
                     oldest_message = None
 
+                except discord.errors.InvalidData:
+                    oldest_message = None
+
             if oldest_message is None:
                 continue
 
@@ -359,6 +362,9 @@ class AutoMod(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
+        if message.guild is None:
+            return
+
         if message.author.bot or is_admin(message.author):
             return
 
