@@ -233,8 +233,8 @@ class AutoMod(commands.Cog):
                     )
 
                 await self.bot.webhook.send(
-                    "Warning {member} for being inactive for 6M. "
-                    "Warning count: 2/2."
+                    f"Warning {member} for being inactive for 6M. "
+                    f"Warning count: 2/2."
                     f"Oldest message: {oldest_message.jump_url}"
                 )
 
@@ -313,8 +313,8 @@ class AutoMod(commands.Cog):
 
                 try:
                     await member.send(
-                        f"You have been banned from the Nerva community server "
-                        f"for having a blacklisted name match - `{regex}`."
+                        "You have been banned from the Nerva community "
+                        "server for having a blacklisted name."
                     )
 
                 except (discord.Forbidden, discord.errors.Forbidden):
@@ -323,7 +323,7 @@ class AutoMod(commands.Cog):
                 await member.ban(reason=f"Blacklisted name match - {regex}.")
 
                 return await self.bot.webhook.send(
-                    f"**{member}** has been banned for having a blacklisted name match - `{regex}`."
+                    f"**{member}** has been banned for having a blacklisted name."
                 )
 
     @commands.Cog.listener()
@@ -333,6 +333,9 @@ class AutoMod(commands.Cog):
         self.bot.log.info(
             f"Member update: {before.display_name} -> {after.display_name}"
         )
+
+        if before.guild.fetch_member(after.id) is None:
+            return
 
         for regex in self.bot.config.NAME_BLACKLIST_REGEX:
             self.bot.log.info(
@@ -347,8 +350,8 @@ class AutoMod(commands.Cog):
 
                 try:
                     await after.send(
-                        f"You have been banned from the Nerva community server "
-                        f"for having a blacklisted name match - `{regex}`."
+                        f"You have been banned from the Nerva community "
+                        f"server for having a blacklisted name."
                     )
 
                 except (discord.Forbidden, discord.errors.Forbidden):
@@ -357,7 +360,7 @@ class AutoMod(commands.Cog):
                 await after.ban(reason=f"Blacklisted name match - {regex}.")
 
                 return await self.bot.webhook.send(
-                    f"**{after}** has been banned for having a blacklisted name match - `{regex}`."
+                    f"**{after}** has been banned for having a blacklisted name."
                 )
 
     @commands.Cog.listener()
@@ -391,8 +394,8 @@ class AutoMod(commands.Cog):
                 await message.delete()
 
                 await self.bot.webhook.send(
-                    f"**{message.author}**'s message has been deleted for having a "
-                    f"blacklisted message match - `{regex}`."
+                    f"**{message.author}**'s message has been deleted "
+                    f"for having a blacklisted message."
                 )
 
                 collection = self.bot.db.get_collection(
