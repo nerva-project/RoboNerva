@@ -1,5 +1,6 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Optional, Any
+
+from typing import TYPE_CHECKING, Any, Optional
 
 import discord
 from discord.ext.menus import ListPageSource

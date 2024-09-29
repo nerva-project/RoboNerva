@@ -1,11 +1,11 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 import math
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 
 import aiohttp
-
 import discord
 from discord import app_commands
 from discord.ext import commands

@@ -10,12 +10,12 @@ Copyright (c) 2024 Sayan "Sn1F3rt" Bhattacharyya, The Nerva Project
 
 import asyncio
 import logging
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 
 import aiohttp
 import motor.motor_asyncio
 
-from config import MONGODB_URI, COINGECKO_API_KEY, MONGODB_DATABASE
+from config import MONGODB_URI, MONGODB_DATABASE, COINGECKO_API_KEY
 
 logging.basicConfig(
     level=logging.INFO,

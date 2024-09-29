@@ -1,14 +1,14 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
-import string
 import random
+import string
 import traceback
 
 import discord
 from discord import app_commands
 from discord.ext import commands
-
 
 if TYPE_CHECKING:
     from bot import RoboNerva

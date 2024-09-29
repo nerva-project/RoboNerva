@@ -1,21 +1,21 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 import aiohttp
-
 import discord
 from discord import app_commands
 from discord.ext import commands
 from discord.ext.menus.views import ViewMenuPages
 
 from utils.cd import cooldown
-from utils.paginators import IPBanPaginatorSource
 from utils.tools import (
     is_admin,
     calculate_hashrate,
     calculate_database_size,
     calculate_seconds_from_time_string,
 )
+from utils.paginators import IPBanPaginatorSource
 
 if TYPE_CHECKING:
     from bot import RoboNerva

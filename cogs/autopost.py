@@ -1,22 +1,20 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
-from datetime import datetime, time, UTC
+from datetime import UTC, time, datetime
 
 import aiohttp
-
-import twikit
-from dateutil.parser import parse
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.error import TelegramError
-
 import discord
 from discord import app_commands
-from discord.ext import commands, tasks
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from discord.ext import tasks, commands
+from telegram.error import TelegramError
+from dateutil.parser import parse
 
 from utils.cd import cooldown
-from utils.modals import TweetLinksModal
 from utils.tools import is_admin, validate_tweet_links
+from utils.modals import TweetLinksModal
 
 if TYPE_CHECKING:
     from bot import RoboNerva

@@ -15,7 +15,6 @@ from dateutil import parser
 
 from config import MONGODB_URI, MONGODB_DATABASE
 
-
 COLLECTION_NAME = (
     "xnv_historical_price_data"  # The name of the collection in the database
 )

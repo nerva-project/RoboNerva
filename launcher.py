@@ -1,19 +1,18 @@
 from __future__ import annotations
 
 import sys
-import logging
 import asyncio
+import logging
 import contextlib
 from datetime import datetime
 
 import click
+import discord
 import motor.motor_asyncio
 from telegram import Bot
 
-import discord
-
-from config import TELEGRAM_TOKEN, MONGODB_URI
 from bot import RoboNerva
+from config import MONGODB_URI, TELEGRAM_TOKEN
 
 try:
     # noinspection PyUnresolvedReferences

@@ -1,9 +1,10 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 import io
-import inspect
 import asyncio
+import inspect
 import textwrap
 import traceback
 import subprocess
@@ -13,10 +14,9 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+from config import COMMUNITY_GUILD_ID
 from utils.tools import is_developer
 from utils.modals import EvalModal, ExecModal
-
-from config import COMMUNITY_GUILD_ID
 
 if TYPE_CHECKING:
     from bot import RoboNerva

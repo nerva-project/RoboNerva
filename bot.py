@@ -1,17 +1,17 @@
 from __future__ import annotations
-from typing import Any, TYPE_CHECKING
+
+from typing import TYPE_CHECKING, Any
 
 import random
 import logging
 from datetime import datetime
 from itertools import cycle
 
-import aiohttp
 import motor
-import dns.asyncresolver
-
+import aiohttp
 import discord
-from discord.ext import commands, tasks
+import dns.asyncresolver
+from discord.ext import tasks, commands
 
 import config
 

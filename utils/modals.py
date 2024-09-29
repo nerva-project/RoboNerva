@@ -1,14 +1,15 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING, Optional
 
 import discord
 from discord import ui
 
 from config import (
-    VERIFIED_USER_ROLE_ID,
-    UNVERIFIED_USER_ROLE_ID,
     TIPBOT_USER_ID,
     TIPBOT_CHANNEL_ID,
+    VERIFIED_USER_ROLE_ID,
+    UNVERIFIED_USER_ROLE_ID,
 )
 
 if TYPE_CHECKING:

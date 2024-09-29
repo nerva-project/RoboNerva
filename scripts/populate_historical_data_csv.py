@@ -10,15 +10,14 @@ Copyright (c) 2024 Sayan "Sn1F3rt" Bhattacharyya, The Nerva Project
 
 import asyncio
 import logging
+from datetime import timedelta
 
 import aiocsv
 import aiofiles
 import motor.motor_asyncio
 from dateutil import parser
-from datetime import timedelta
 
 from config import MONGODB_URI, MONGODB_DATABASE
-
 
 logging.basicConfig(
     level=logging.INFO,
