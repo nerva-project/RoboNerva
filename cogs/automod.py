@@ -41,7 +41,7 @@ class AutoMod(commands.Cog):
 
                 await member.kick(reason="Not verified within 24h.")
 
-                await self.bot.webhook.send(
+                await self.bot.log_hook.send(
                     f"**{member}** has been kicked for not verifying within 24h."
                 )
 
@@ -113,7 +113,7 @@ class AutoMod(commands.Cog):
                             upsert=True,
                         )
 
-                except discord.errors.DiscordServerError:
+                except discord.errors.DiscordException:
                     continue
 
             else:
@@ -133,6 +133,9 @@ class AutoMod(commands.Cog):
                         )
 
                 except discord.errors.DiscordException:
+                    await member_collection.update_one(
+                        {"_id": member.id}, {"$unset": {"last_message": ""}}
+                    )
                     oldest_message = None
 
             if oldest_message is None:
@@ -148,7 +151,7 @@ class AutoMod(commands.Cog):
 
                     await inactivity_collection.delete_one({"_id": member.id})
 
-                    await self.bot.webhook.send(
+                    await self.bot.log_hook.send(
                         f"[SANDBOX] **{member}** has been kicked for being inactive for 6M.\n"
                         f"Oldest message: {oldest_message.jump_url}\n"
                         f"Days since last message: {(datetime.now(UTC) - oldest_message.created_at).days}"
@@ -167,7 +170,7 @@ class AutoMod(commands.Cog):
                             {"_id": member.id}, {"$inc": {"count": 1}}
                         )
 
-                        await self.bot.webhook.send(
+                        await self.bot.log_hook.send(
                             f"**{member}** has been warned for being inactive for 6M. "
                             f"Warning count: 2/2.\n"
                             f"Oldest message: {oldest_message.jump_url}\n"
@@ -194,7 +197,7 @@ class AutoMod(commands.Cog):
                             {"_id": member.id, "count": 1}
                         )
 
-                        await self.bot.webhook.send(
+                        await self.bot.log_hook.send(
                             f"**{member}** has been warned for being inactive for 6M. "
                             f"Warning count: 1/2.\n"
                             f"Oldest message: {oldest_message.jump_url}\n"
@@ -229,7 +232,7 @@ class AutoMod(commands.Cog):
                         {"_id": member.id, "count": 1}
                     )
 
-                await self.bot.webhook.send(
+                await self.bot.log_hook.send(
                     f"Warning {member} for being inactive for 6M. "
                     f"Warning count: 2/2."
                     f"Oldest message: {oldest_message.jump_url}"
@@ -317,11 +320,16 @@ class AutoMod(commands.Cog):
                 except (discord.Forbidden, discord.errors.Forbidden):
                     pass
 
-                await member.ban(reason=f"Blacklisted name match - {regex}.")
+                await member.ban(reason=f"Blacklisted name match.")
 
-                return await self.bot.webhook.send(
+                await self.bot.automod_hook.send(
+                    f"**{member}** matched against `{regex}`."
+                )
+                await self.bot.log_hook.send(
                     f"**{member}** has been banned for having a blacklisted name."
                 )
+
+                return
 
     @commands.Cog.listener()
     async def on_member_update(
@@ -342,7 +350,7 @@ class AutoMod(commands.Cog):
 
             if re.search(regex, after.display_name, re.IGNORECASE):
                 self.bot.log.info(
-                    f"Kicking {after} for having a blacklisted name match - {regex}."
+                    f"Banning {after} for having a blacklisted name match - {regex}."
                 )
 
                 try:
@@ -354,11 +362,16 @@ class AutoMod(commands.Cog):
                 except (discord.Forbidden, discord.errors.Forbidden):
                     pass
 
-                await after.ban(reason=f"Blacklisted name match - {regex}.")
+                await after.ban(reason=f"Blacklisted name match.")
 
-                return await self.bot.webhook.send(
+                await self.bot.automod_hook.send(
+                    f"**{after}** matched against `{regex}`."
+                )
+                await self.bot.log_hook.send(
                     f"**{after}** has been banned for having a blacklisted name."
                 )
+
+                return
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
@@ -390,7 +403,12 @@ class AutoMod(commands.Cog):
 
                 await message.delete()
 
-                await self.bot.webhook.send(
+                await self.bot.automod_hook.send(
+                    f"**{message.author}**'s message matched against - `{regex}`."
+                    f"Message content:\n"
+                    f"```\n{message.content}\n```"
+                )
+                await self.bot.log_hook.send(
                     f"**{message.author}**'s message has been deleted "
                     f"for having a blacklisted message."
                 )
@@ -424,12 +442,12 @@ class AutoMod(commands.Cog):
                         pass
 
                     await message.author.ban(
-                        reason="3 warnings received for blacklisted message matches."
+                        reason="3 warnings for blacklisted message matches."
                     )
 
                     await collection.delete_one({"_id": message.author.id})
 
-                    await self.bot.webhook.send(
+                    await self.bot.log_hook.send(
                         f"**{message.author}** has been banned for receiving "
                         f"3 warnings for blacklisted message matches."
                     )
@@ -442,7 +460,7 @@ class AutoMod(commands.Cog):
                     self.bot.log.info(
                         f"Warning {message.author} for blacklisted message match. "
                         f"Matched regex: `{regex}`. "
-                        f"Warning count: **{warning_count}/3**."
+                        f"Warning count: {warning_count}/3."
                     )
 
                     try:

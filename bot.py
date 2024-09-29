@@ -146,9 +146,17 @@ class RoboNerva(commands.AutoShardedBot):
         return random.choice(self._api_nodes)
 
     @discord.utils.cached_property
-    def webhook(self) -> discord.Webhook:
+    def log_hook(self) -> discord.Webhook:
         return discord.Webhook.partial(
-            id=self.config.WEBHOOK_ID,
-            token=self.config.WEBHOOK_TOKEN,
+            id=self.config.LOG_WEBHOOK_ID,
+            token=self.config.LOG_WEBHOOK_TOKEN,
+            session=self.session,
+        )
+
+    @discord.utils.cached_property
+    def automod_hook(self) -> discord.Webhook:
+        return discord.Webhook.partial(
+            id=self.config.AUTOMOD_WEBHOOK_ID,
+            token=self.config.AUTOMOD_WEBHOOK_TOKEN,
             session=self.session,
         )

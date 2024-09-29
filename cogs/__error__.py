@@ -64,7 +64,7 @@ class Error(commands.Cog):
                     value=f"Saved to `{file_name}`",
                 )
 
-                return await self.bot.webhook.send(embed=embed)
+                return await self.bot.log_hook.send(embed=embed)
 
 
 async def setup(bot: RoboNerva) -> None:
