@@ -8,3 +8,5 @@ jobs:
         steps:
             -   uses: actions/checkout@v4
             -   uses: isort/isort-action@v1
+                with:
+                    configuration: "--settings-path pyproject.toml --check-only --diff"
