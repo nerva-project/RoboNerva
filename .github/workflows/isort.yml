@@ -3,10 +3,11 @@ name: Run isort
 on: [ push, pull_request ]
 
 jobs:
-    lint:
+    isort:
         runs-on: ubuntu-latest
         steps:
             -   uses: actions/checkout@v4
+            -   run: ls -la
             -   uses: isort/isort-action@v1
                 with:
-                    configuration: "--settings-path pyproject.toml --check-only --diff"
+                    configuration: "--settings-file pyproject.toml --check-only --diff"
