@@ -10,4 +10,4 @@ jobs:
             -   run: ls -la
             -   uses: isort/isort-action@v1
                 with:
-                    configuration: '--show-config --verbose'
+                    configuration: ''
