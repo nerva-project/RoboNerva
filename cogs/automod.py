@@ -339,7 +339,7 @@ class AutoMod(commands.Cog):
             f"Member update: {before.display_name} -> {after.display_name}"
         )
 
-        if before.guild.fetch_member(after.id) is None:
+        if await before.guild.fetch_member(after.id) is None:
             return
 
         for regex in self.bot.config.NAME_BLACKLIST_REGEX:
