@@ -132,10 +132,7 @@ class AutoMod(commands.Cog):
                             data["last_message"]["id"]
                         )
 
-                except discord.errors.NotFound:
-                    oldest_message = None
-
-                except discord.errors.InvalidData:
+                except discord.errors.DiscordException:
                     oldest_message = None
 
             if oldest_message is None:
