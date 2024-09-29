@@ -10,4 +10,4 @@ jobs:
             -   run: ls -la
             -   uses: isort/isort-action@v1
                 with:
-                    configuration: "--settings-file pyproject.toml --check-only --diff"
+                    configuration: "--settings-file pyproject.toml --check-only --diff --verbose"
