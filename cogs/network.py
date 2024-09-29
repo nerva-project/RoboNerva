@@ -322,7 +322,7 @@ class Network(commands.Cog):
             clear_reactions_after=True,
         )
 
-        await ctx.edit_original_response(content="\U0001F44C")
+        await ctx.edit_original_response(content="\U0001f44c")
         await paginator.start(ctx)
 
     @app_commands.command(name="ban")
