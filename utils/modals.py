@@ -110,8 +110,8 @@ class VerificationModal(ui.Modal, title="User Verification"):
     timeout: int = 5 * 60
 
     text = ui.TextInput(
-        label="Type 'I agree to the rules' below: ",
-        placeholder="I agree to the rules",
+        label="Type 'I agree' below: ",
+        placeholder="I agree",
         required=True,
     )
 
@@ -121,13 +121,11 @@ class VerificationModal(ui.Modal, title="User Verification"):
         # noinspection PyUnresolvedReferences
         await ctx.response.defer(thinking=True, ephemeral=True)
 
-        if self.text.value.lower() != "i agree to the rules":
-            await ctx.followup.send(
-                content="You must type 'I agree to the rules' to continue."
-            )
+        if self.text.value.lower() != "i agree":
+            await ctx.followup.send(content="You must type 'I agree' to continue.")
             return
 
-        await ctx.delete_original_response()
+        await self.ctx.delete_original_response()
 
         verified_user_role = ctx.guild.get_role(VERIFIED_USER_ROLE_ID)
         await ctx.user.add_roles(verified_user_role)
