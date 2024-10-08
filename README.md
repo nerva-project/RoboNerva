@@ -1,10 +1,9 @@
 # RoboNerva
 
-[![Lint](https://github.com/nerva-project/RoboNerva/actions/workflows/black.yml/badge.svg)](https://github.com/nerva-project/RoboNerva/actions/workflows/black.yml)
+[![Ruff](https://github.com/nerva-project/RoboNerva/actions/workflows/ruff.yml/badge.svg)](https://github.com/nerva-project/RoboNerva/actions/workflows/ruff.yml)
 [![License](https://img.shields.io/github/license/nerva-project/RoboNerva)](LICENSE)
 [![GitHub last commit](https://img.shields.io/github/last-commit/nerva-project/RoboNerva)](https://github.com/nerva-project/RoboNerva/commits/main/)
 [![GitHub stars](https://img.shields.io/github/stars/nerva-project/RoboNerva)](https://github.com/nerva-project/RoboNerva/)
-
 
 ## Table of Contents
 
@@ -17,7 +16,8 @@
 
 ## About
 
-RoboNerva is a Discord bot for the Nerva community. It is built using the [discord.py](https://pypi.org/project/discord.py/) library and [MongoDB](https://www.mongodb.com/) for data storage.
+RoboNerva is a Discord bot for the Nerva community. It is built using
+the [discord.py](https://pypi.org/project/discord.py/) library and [MongoDB](https://www.mongodb.com/) for data storage.
 
 ## Prerequisites
 
@@ -32,25 +32,25 @@ RoboNerva is a Discord bot for the Nerva community. It is built using the [disco
    ```shell
     git clone https://github.com/nerva-project/RoboNerva.git
    ```
-   
+
 2. Switch to the project directory
 
    ```shell
     cd RoboNerva
    ```
-   
+
 3. Create a virtual environment
 
    ```shell
     python -m venv .venv
    ```
-   
+
 4. Activate the virtual environment
 
    ```shell
     source .venv/bin/activate
    ```
-   
+
 5. Install the dependencies
 
    ```shell
