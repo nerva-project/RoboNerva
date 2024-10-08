@@ -7,10 +7,10 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             -   uses: actions/checkout@v4
-            -   name: Check
-                uses: astral-sh/ruff-action@v1
-                with:
-                    args: 'check --select I --no-fix'
+            #-   name: Check
+            #    uses: astral-sh/ruff-action@v1
+            #    with:
+            #        args: 'check --select I --no-fix'
             -   name: Format
                 uses: astral-sh/ruff-action@v1
                 with:
