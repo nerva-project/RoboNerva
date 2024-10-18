@@ -16,6 +16,10 @@ env:
 dev:
 	uv sync --all-extras
 
+format:
+	ruff check --select I --fix .
+	ruff format .
+
 run:
 	uv run launcher.py
 
