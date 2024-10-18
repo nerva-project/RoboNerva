@@ -26,6 +26,10 @@ else:
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
+
 async def setup_database() -> motor.motor_asyncio.AsyncIOMotorClient:
     return motor.motor_asyncio.AsyncIOMotorClient(MONGODB_URI)
 
