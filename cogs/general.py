@@ -198,27 +198,86 @@ class General(commands.Cog):
 
         view.add_item(
             discord.ui.Button(
-                label="Windows CLI",
+                label="CLI: Windows, 64-bit",
                 url=f"https://github.com/nerva-project/nerva/releases/download/"
-                f"{cli_version}/nerva-{cli_version}_windows_minimal.zip",
+                f"{cli_version}/nerva-windows-x64-{cli_version}.zip",
                 row=0,
             )
         )
         view.add_item(
             discord.ui.Button(
-                label="Windows GUI",
-                url=f"https://github.com/nerva-project/NervaOneWalletMiner/releases/download/"
-                f"{gui_version}/nervaone-desktop-{gui_version}_win-x64.zip",
+                label="CLI: Windows, 32-bit",
+                url=f"https://github.com/nerva-project/nerva/releases/download/"
+                f"{cli_version}/nerva-windows-x32-{cli_version}.zip",
                 row=0,
             )
         )
 
         view.add_item(
             discord.ui.Button(
-                label="Linux CLI",
+                label="CLI: macOS, Intel",
                 url=f"https://github.com/nerva-project/nerva/releases/download/"
-                f"{cli_version}/nerva-{cli_version}_linux_minimal.zip",
+                f"{cli_version}/nerva-macos-x64-{cli_version}.tar.bz2",
+                row=0,
+            )
+        )
+        view.add_item(
+            discord.ui.Button(
+                label="CLI: macOS, ARM",
+                url=f"https://github.com/nerva-project/nerva/releases/download/"
+                f"{cli_version}/nerva-macos-armv8-{cli_version}.tar.bz2",
+                row=0,
+            )
+        )
+
+        view.add_item(
+            discord.ui.Button(
+                label="CLI: FreeBSD, 64-bit",
+                url=f"https://github.com/nerva-project/nerva/releases/download/"
+                f"{cli_version}/nerva-freebsd-x86_64-{cli_version}.tar.bz2",
+                row=0,
+            )
+        )
+
+        view.add_item(
+            discord.ui.Button(
+                label="CLI: Linux, 64-bit",
+                url=f"https://github.com/nerva-project/nerva/releases/download/"
+                f"{cli_version}/nerva-linux-x86_64-{cli_version}.tar.bz2",
                 row=1,
+            )
+        )
+        view.add_item(
+            discord.ui.Button(
+                label="CLI: Linux, 32-bit",
+                url=f"https://github.com/nerva-project/nerva/releases/download/"
+                f"{cli_version}/nerva-linux-i686-{cli_version}.tar.bz2",
+                row=1,
+            )
+        )
+        view.add_item(
+            discord.ui.Button(
+                label="CLI: Linux, armv7",
+                url=f"https://github.com/nerva-project/nerva/releases/download/"
+                f"{cli_version}/nerva-linux-armv7-{cli_version}.tar.bz2",
+                row=1,
+            )
+        )
+        view.add_item(
+            discord.ui.Button(
+                label="CLI: Linux, armv8",
+                url=f"https://github.com/nerva-project/nerva/releases/download/"
+                f"{cli_version}/nerva-linux-armv8-{cli_version}.tar.bz2",
+                row=1,
+            )
+        )
+
+        view.add_item(
+            discord.ui.Button(
+                label="Windows GUI",
+                url=f"https://github.com/nerva-project/NervaOneWalletMiner/releases/download/"
+                f"{gui_version}/nervaone-desktop-{gui_version}_win-x64.zip",
+                row=2,
             )
         )
         view.add_item(
@@ -226,15 +285,6 @@ class General(commands.Cog):
                 label="Linux GUI",
                 url=f"https://github.com/nerva-project/NervaOneWalletMiner/releases/download/"
                 f"{gui_version}/nervaone-desktop-{gui_version}_linux-x64.zip",
-                row=1,
-            )
-        )
-
-        view.add_item(
-            discord.ui.Button(
-                label="MacOS CLI",
-                url=f"https://github.com/nerva-project/nerva/releases/download/"
-                f"{cli_version}/nerva-{cli_version}_osx_minimal.zip",
                 row=2,
             )
         )
@@ -249,8 +299,24 @@ class General(commands.Cog):
 
         view.add_item(
             discord.ui.Button(
-                label="Chain QuickSync",
-                url="https://nerva.one/quicksync/quicksync.raw",
+                label="Utils: p2pstate file",
+                url="https://github.com/nerva-project/nerva/releases/download/"
+                f"{cli_version}/p2pstate.nerva.v11.bin",
+                row=3,
+            )
+        )
+        view.add_item(
+            discord.ui.Button(
+                label="Utils: Quicksync",
+                url="https://github.com/nerva-project/nerva/releases/download/"
+                f"{cli_version}/p2pstate.nerva.v11.bin",
+                row=3,
+            )
+        )
+        view.add_item(
+            discord.ui.Button(
+                label="Utils: Blockchain database",
+                url="https://nerva.one/database/nerva_blockchain_db.zip",
                 row=3,
             )
         )
