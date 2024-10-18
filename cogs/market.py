@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List
 
 from datetime import UTC, time, datetime, timedelta
 
@@ -12,7 +12,11 @@ from dateutil.parser import parse
 from discord.ext.menus.views import ViewMenuPages
 
 from utils.cd import cooldown
-from utils.paginators import TradeOgrePaginatorSource, HistoricalPricePaginatorSource
+from utils.paginators import (
+    XeggeXPaginatorSource,
+    TradeOgrePaginatorSource,
+    HistoricalPricePaginatorSource,
+)
 
 if TYPE_CHECKING:
     from bot import RoboNerva
@@ -181,44 +185,57 @@ class Market(commands.Cog):
         # noinspection PyUnresolvedReferences
         await ctx.response.defer(thinking=True)
 
-        entries = list()
+        market_data: List[Dict] = list()
 
-        async with aiohttp.ClientSession() as session:
-            async with session.get(
-                "https://tradeogre.com/api/v1/ticker/xnv-btc"
-            ) as res:
-                data = await res.json(content_type=None)
+        for pair in self.bot.config.TRADEOGRE_MARKET_PAIRS:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(
+                    f"https://tradeogre.com/api/v1/ticker/{pair.lower()}"
+                ) as res:
+                    data: Dict[str, Any] = await res.json(content_type=None)
 
-                entry = {
-                    "pair": "XNV-BTC",
-                    "last_price": f"{round(float(data['price']) * 100_000_000)} sat",
-                    "bid": f"{round(float(data['bid']) * 100_000_000)} sat",
-                    "ask": f"{round(float(data['ask']) * 100_000_000)} sat",
-                    "volume": f"{float(data['volume'])} BTC",
-                    "high": f"{round(float(data['high']) * 100_000_000)} sat",
-                    "low": f"{round(float(data['low']) * 100_000_000)} sat",
-                }
+                    if "error" in data:
+                        continue
 
-                entries.append(entry)
+                    else:
+                        last_price: str
+                        bid: str
+                        ask: str
+                        volume: str
+                        high: str
+                        low: str
 
-            async with session.get(
-                "https://tradeogre.com/api/v1/ticker/xnv-usdt"
-            ) as res:
-                data = await res.json(content_type=None)
+                        if pair.endswith("BTC"):
+                            last_price = (
+                                f"{round(float(data['price']) * 100_000_000)} sat"
+                            )
+                            bid = f"{round(float(data['bid']) * 100_000_000)} sat"
+                            ask = f"{round(float(data['ask']) * 100_000_000)} sat"
+                            volume = f"{float(data['volume'])} BTC"
+                            high = f"{round(float(data['high']) * 100_000_000)} sat"
+                            low = f"{round(float(data['low']) * 100_000_000)} sat"
 
-                entry = {
-                    "pair": "XNV-USDT",
-                    "last_price": f"${round(float(data['price']), 4)}",
-                    "bid": f"${round(float(data['bid']), 4)}",
-                    "ask": f"${round(float(data['ask']), 4)}",
-                    "volume": f"${round(float(data['volume']), 2)}",
-                    "high": f"${round(float(data['high']), 4)}",
-                    "low": f"${round(float(data['low']), 4)}",
-                }
+                        else:
+                            last_price = f"${round(float(data['price']), 4)}"
+                            bid = f"${round(float(data['bid']), 4)}"
+                            ask = f"${round(float(data['ask']), 4)}"
+                            volume = f"${round(float(data['volume']), 2)}"
+                            high = f"${round(float(data['high']), 4)}"
+                            low = f"${round(float(data['low']), 4)}"
 
-                entries.append(entry)
+                        market_data.append(
+                            {
+                                "pair": pair,
+                                "last_price": last_price,
+                                "bid": bid,
+                                "ask": ask,
+                                "volume": volume,
+                                "high": high,
+                                "low": low,
+                            }
+                        )
 
-        pages = TradeOgrePaginatorSource(entries=entries, ctx=ctx)
+        pages = TradeOgrePaginatorSource(entries=market_data, ctx=ctx)
         paginator = ViewMenuPages(
             source=pages,
             timeout=300,
@@ -246,45 +263,83 @@ class Market(commands.Cog):
             "q=tbn:ANd9GcQge9tw8HHcbwBXNALMQvysPoL6s-bFhJjA3g&s"
         )
 
-        async with aiohttp.ClientSession() as session:
-            async with session.get(
-                "https://api.xeggex.com/api/v2/market/getbysymbol/XNV_USDT"
-            ) as res:
-                data = await res.json()
+        market_data: List[Dict] = list()
 
-                embed.add_field(
-                    name="Last Price", value=f"${round(float(data['lastPrice']), 4)}"
-                )
-                embed.add_field(
-                    name="Bid", value=f"${round(float(data['bestBid']), 4)}"
-                )
-                embed.add_field(
-                    name="Ask", value=f"${round(float(data['bestAsk']), 4)}"
-                )
-                embed.add_field(
-                    name="Volume", value=f"{round(float(data['volume']), 2)}"
-                )
-                embed.add_field(
-                    name="High", value=f"${round(float(data['highPrice']), 4)}"
-                )
-                embed.add_field(
-                    name="Low", value=f"${round(float(data['lowPrice']), 4)}"
-                )
-                embed.add_field(
-                    name="Last Trade",
-                    value=f"<t:{data['lastTradeAt'] // 1000}:F> "
-                    f"(<t:{data['lastTradeAt'] // 1000}:R>)",
-                )
+        for pair in self.bot.config.XEGGEX_MARKET_PAIRS:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(
+                    f"https://api.xeggex.com/api/v2/market/getbysymbol/{pair.replace('-', '_')}"
+                ) as res:
+                    data: Dict[str, Any] = await res.json()
 
-        view = discord.ui.View()
-        view.add_item(
-            discord.ui.Button(
-                label="Xeggex (XNV-USDT)",
-                url="https://xeggex.com/market/XNV_USDT",
-            )
+                    if "error" in data:
+                        continue
+
+                    else:
+                        last_price: str
+                        bid: str
+                        ask: str
+                        volume: str
+                        high: str
+                        low: str
+                        last_trade: str
+
+                        if pair.endswith("BTC"):
+                            last_price = f"{round(float(data['lastPrice']) * 100_000_000)} sat"
+                            bid = (
+                                f"{round(float(data['bestBid']) * 100_000_000)} sat"
+                            )
+                            ask = (
+                                f"{round(float(data['bestAsk']) * 100_000_000)} sat"
+                            )
+                            volume = f"{float(data['volumeSecondary'])} BTC"
+                            high = f"{round(float(data['highPrice']) * 100_000_000)} sat"
+                            low = (
+                                f"{round(float(data['lowPrice']) * 100_000_000)} sat"
+                            )
+                            last_trade = data["lastTradeAt"] // 1000
+
+                        elif pair.endswith("USDT") or pair.endswith("USDC"):
+                            last_price = f"${round(float(data['lastPrice']), 4)}"
+                            bid = f"${round(float(data['bestBid']), 4)}"
+                            ask = f"${round(float(data['bestAsk']), 4)}"
+                            volume = f"${round(float(data['volumeSecondary']), 2)}"
+                            high = f"${round(float(data['highPrice']), 4)}"
+                            low = f"${round(float(data['lowPrice']), 4)}"
+                            last_trade = data["lastTradeAt"] // 1000
+
+                        else:
+                            last_price = f"{round(float(data['lastPrice']), 4)} XPE"
+                            bid = f"{round(float(data['bestBid']), 4)} XPE"
+                            ask = f"{round(float(data['bestAsk']), 4)} XPE"
+                            volume = f"{float(data['volumeSecondary'])} XPE"
+                            high = f"{round(float(data['highPrice']), 4)} XPE"
+                            low = f"{round(float(data['lowPrice']), 4)} XPE"
+                            last_trade = data["lastTradeAt"] // 1000
+
+                        market_data.append(
+                            {
+                                "pair": pair,
+                                "last_price": last_price,
+                                "bid": bid,
+                                "ask": ask,
+                                "volume": volume,
+                                "high": high,
+                                "low": low,
+                                "last_trade": last_trade,
+                            }
+                        )
+
+        pages = XeggeXPaginatorSource(entries=market_data, ctx=ctx)
+        paginator = ViewMenuPages(
+            source=pages,
+            timeout=300,
+            delete_message_after=False,
+            clear_reactions_after=True,
         )
 
-        await ctx.edit_original_response(embed=embed, view=view)
+        await ctx.edit_original_response(content="\U0001f44c")
+        await paginator.start(ctx)
 
     @app_commands.command(name="history")
     @app_commands.guilds(COMMUNITY_GUILD_ID)
