@@ -212,6 +212,7 @@ class AutoPost(commands.Cog):
             discord.ui.Button(
                 label="CoinGecko",
                 url="https://www.coingecko.com/en/coins/nerva",
+                row=0,
             )
         )
 
@@ -220,6 +221,7 @@ class AutoPost(commands.Cog):
                 discord.ui.Button(
                     label=f"TradeOgre ({pair})",
                     url=f"https://tradeogre.com/exchange/{pair}",
+                    row=0,
                 )
             )
 
@@ -228,6 +230,7 @@ class AutoPost(commands.Cog):
                 discord.ui.Button(
                     label=f"XeggeX ({pair})",
                     url=f"https://xeggex.com/market/{pair.replace('-', '_')}",
+                    row=1,
                 )
             )
 
