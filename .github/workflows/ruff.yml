@@ -1,6 +1,15 @@
 name: ci/gh-actions/ruff
 
-on: [ push, pull_request ]
+on:
+    push:
+        paths-ignore:
+            - 'assets/**'
+            - 'README.md'
+    pull_request:
+        paths-ignore:
+            - 'assets/**'
+            - 'README.md'
+    workflow_dispatch:
 
 jobs:
     ruff:
