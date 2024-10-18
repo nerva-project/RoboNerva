@@ -1,7 +1,7 @@
 [project]
 name = "RoboNerva"
 version = "1.0.0"
-description = "Add your description here"
+description = "Community manager bot for the Nerva Community."
 license = "GPL-3.0"
 authors = [
   { name="Sayan Bhattacharyya", email="sayan@sn1f3rt.dev" },
