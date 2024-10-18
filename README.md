@@ -20,39 +20,34 @@ the [discord.py](https://pypi.org/project/discord.py/) library and [MongoDB](htt
 ## Prerequisites
 
 - Git
-- Python 3.8 or higher (tested on 3.12)
+- Python >= 3.8
+- [`uv` package manager](https://docs.astral.sh/uv/getting-started/installation/)
 - [MongoDB Atlas](https://www.mongodb.com/products/platform/atlas-database) or any other MongoDB instance
 
 ## Installation
 
-1. Clone the repository
+1. Clone the repository.
 
    ```shell
-    git clone https://github.com/nerva-project/RoboNerva.git
+   git clone https://github.com/nerva-project/RoboNerva.git
    ```
 
-2. Switch to the project directory
+2. Switch to the project directory.
 
    ```shell
-    cd RoboNerva
+   cd RoboNerva
    ```
 
-3. Create a virtual environment
+3. Install the dependencies.
 
    ```shell
-    python -m venv .venv
+   uv sync --no-dev
    ```
-
-4. Activate the virtual environment
-
-   ```shell
-    source .venv/bin/activate
-   ```
-
-5. Install the dependencies
+   
+4. (Optional) Set up a development environment by installing the development dependencies and extras.
 
    ```shell
-    pip install .
+   uv sync --all-extras
    ```
 
 ## Configuration
@@ -62,11 +57,11 @@ Copy the [`config.example.py`](config.example.py) file to `config.py` and update
 ## Running
 
 ```shell
-python launcher.py
+uv run launcher.py
 ```
 
 ## License
 
 [GNU General Public License v3.0](LICENSE)
 
-Copyright &copy; 2024 [Sayan "Sn1F3rt" Bhattacharyya](https://sn1f3rt.me), [The Nerva Project](https://nerva.one)
+Copyright &copy; 2024 [Sayan "Sn1F3rt" Bhattacharyya](https://sn1f3rt.dev), [The Nerva Project](https://nerva.one)
