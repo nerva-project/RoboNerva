@@ -274,7 +274,7 @@ class General(commands.Cog):
 
         view.add_item(
             discord.ui.Button(
-                label="Windows GUI",
+                label="GUI: Windows",
                 url=f"https://github.com/nerva-project/NervaOneWalletMiner/releases/download/"
                 f"{gui_version}/nervaone-desktop-{gui_version}_win-x64.zip",
                 row=2,
@@ -282,7 +282,7 @@ class General(commands.Cog):
         )
         view.add_item(
             discord.ui.Button(
-                label="Linux GUI",
+                label="GUI: Linux",
                 url=f"https://github.com/nerva-project/NervaOneWalletMiner/releases/download/"
                 f"{gui_version}/nervaone-desktop-{gui_version}_linux-x64.zip",
                 row=2,
@@ -290,7 +290,7 @@ class General(commands.Cog):
         )
         view.add_item(
             discord.ui.Button(
-                label="MacOS GUI",
+                label="GUI: macOS",
                 url=f"https://github.com/nerva-project/NervaOneWalletMiner/releases/download/"
                 f"{gui_version}/nervaone-desktop-{gui_version}_osx-x64.zip",
                 row=2,
