@@ -9,6 +9,7 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "click>=8.1.7",
     "discord-ext-menus",
     "discord-ext-menus-views",
     "discord-py>=2.4.0",
