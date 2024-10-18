@@ -14,9 +14,10 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from config import COMMUNITY_GUILD_ID
 from utils.tools import is_developer
 from utils.modals import EvalModal, ExecModal
+
+from config import COMMUNITY_GUILD_ID
 
 if TYPE_CHECKING:
     from bot import RoboNerva

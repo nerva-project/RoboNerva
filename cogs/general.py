@@ -12,10 +12,10 @@ from discord.ext import commands
 
 from utils.cd import cooldown
 
+from config import COMMUNITY_GUILD_ID
+
 if TYPE_CHECKING:
     from bot import RoboNerva
-
-from config import COMMUNITY_GUILD_ID
 
 
 class General(commands.Cog):

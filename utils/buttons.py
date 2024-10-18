@@ -5,9 +5,9 @@ from typing import TYPE_CHECKING, Any
 import discord
 from discord import ui
 
-from config import VERIFIED_USER_ROLE_ID
-
 from .modals import VerificationModal
+
+from config import VERIFIED_USER_ROLE_ID
 
 if TYPE_CHECKING:
     from motor import MotorCollection
