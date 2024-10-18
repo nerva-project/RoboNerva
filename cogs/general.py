@@ -133,23 +133,22 @@ class General(commands.Cog):
         await ctx.response.defer(thinking=True)
 
         view = discord.ui.View()
-        view.add_item(
-            discord.ui.Button(
-                label="TradeOgre (XNV-BTC)",
-                url="https://tradeogre.com/exchange/XNV-BTC",
+
+        for pair in self.bot.config.TRADEOGRE_MARKET_PAIRS:
+            view.add_item(
+                discord.ui.Button(
+                    label=f"TradeOgre ({pair})",
+                    url=f"https://tradeogre.com/exchange/{pair}",
+                )
             )
-        )
-        view.add_item(
-            discord.ui.Button(
-                label="TradeOgre (XNV-USDT)",
-                url="https://tradeogre.com/exchange/XNV-USDT",
+
+        for pair in self.bot.config.XEGGEX_MARKET_PAIRS:
+            view.add_item(
+                discord.ui.Button(
+                    label=f"XeggeX ({pair})",
+                    url=f"https://xeggex.com/market/{pair.replace('-', '_')}",
+                )
             )
-        )
-        view.add_item(
-            discord.ui.Button(
-                label="XeggeX (XNV-USDT)", url="https://xeggex.com/market/XNV_USDT"
-            )
-        )
 
         await ctx.edit_original_response(
             content="Here are the links to various Nerva trading pairs!", view=view

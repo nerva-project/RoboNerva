@@ -212,30 +212,24 @@ class AutoPost(commands.Cog):
             discord.ui.Button(
                 label="CoinGecko",
                 url="https://www.coingecko.com/en/coins/nerva",
-                row=0,
             )
         )
-        view.add_item(
-            discord.ui.Button(
-                label="TradeOgre (XNV-BTC)",
-                url="https://tradeogre.com/exchange/XNV-BTC",
-                row=0,
+
+        for pair in self.bot.config.TRADEOGRE_MARKET_PAIRS:
+            view.add_item(
+                discord.ui.Button(
+                    label=f"TradeOgre ({pair})",
+                    url=f"https://tradeogre.com/exchange/{pair}",
+                )
             )
-        )
-        view.add_item(
-            discord.ui.Button(
-                label="TradeOgre (XNV-USDT)",
-                url="https://tradeogre.com/exchange/XNV-USDT",
-                row=1,
+
+        for pair in self.bot.config.XEGGEX_MARKET_PAIRS:
+            view.add_item(
+                discord.ui.Button(
+                    label=f"XeggeX ({pair})",
+                    url=f"https://xeggex.com/market/{pair.replace('-', '_')}",
+                )
             )
-        )
-        view.add_item(
-            discord.ui.Button(
-                label="XeggeX (XNV-USDT)",
-                url="https://xeggex.com/market/XNV_USDT",
-                row=1,
-            )
-        )
 
         await channel.send(embed=embed, view=view)
 
