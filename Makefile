@@ -30,5 +30,5 @@ clean-all:
 	$(RM) $(RM_FLAGS) logs$(SEP)*.log $(RM_FLAGS_ALL)
 	$(RM) $(RM_FLAGS) logs$(SEP)errors$(SEP)*.log $(RM_FLAGS_ALL)
 
-.PHONY: env dev clean clean-all
+.PHONY: env dev format run clean clean-all
 .DEFAULT_GOAL := run
