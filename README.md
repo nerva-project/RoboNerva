@@ -2,8 +2,6 @@
 
 [![Ruff](https://github.com/nerva-project/RoboNerva/actions/workflows/ruff.yml/badge.svg)](https://github.com/nerva-project/RoboNerva/actions/workflows/ruff.yml)
 [![License](https://img.shields.io/github/license/nerva-project/RoboNerva)](LICENSE)
-[![GitHub last commit](https://img.shields.io/github/last-commit/nerva-project/RoboNerva)](https://github.com/nerva-project/RoboNerva/commits/main/)
-[![GitHub stars](https://img.shields.io/github/stars/nerva-project/RoboNerva)](https://github.com/nerva-project/RoboNerva/)
 
 ## Table of Contents
 
@@ -54,7 +52,7 @@ the [discord.py](https://pypi.org/project/discord.py/) library and [MongoDB](htt
 5. Install the dependencies
 
    ```shell
-    pip install -r requirements.txt
+    pip install .
    ```
 
 ## Configuration
