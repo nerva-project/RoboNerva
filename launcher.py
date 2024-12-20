@@ -7,9 +7,10 @@ import contextlib
 from datetime import datetime
 
 import click
-import discord
 import motor.motor_asyncio
 from telegram import Bot
+
+import discord
 
 from bot import RoboNerva
 

@@ -9,8 +9,9 @@ from itertools import cycle
 
 import motor
 import aiohttp
-import discord
 import dns.asyncresolver
+
+import discord
 from discord.ext import tasks, commands
 
 import config

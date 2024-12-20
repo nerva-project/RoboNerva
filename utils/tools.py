@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import discord
 import validators
+
+import discord
 
 from config import ADMIN_ROLE_IDS, DEVELOPER_USER_IDS
 

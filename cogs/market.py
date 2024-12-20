@@ -5,10 +5,11 @@ from typing import TYPE_CHECKING, Any, Dict, List
 from datetime import UTC, time, datetime, timedelta
 
 import aiohttp
+from dateutil.parser import parse
+
 import discord
 from discord import app_commands
 from discord.ext import tasks, commands
-from dateutil.parser import parse
 from discord.ext.menus.views import ViewMenuPages
 
 from utils.cd import cooldown
