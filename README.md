@@ -41,13 +41,13 @@ the [discord.py](https://pypi.org/project/discord.py/) library and [MongoDB](htt
 3. Install the dependencies.
 
    ```shell
-   uv sync --no-dev
+   uv sync --no-dev # or make install
    ```
-   
+
 4. (Optional) Set up a development environment by installing the development dependencies and extras.
 
    ```shell
-   uv sync --all-extras
+   uv sync --extra dev # or make install-dev
    ```
 
 ## Configuration
@@ -57,7 +57,7 @@ Copy the [`config.example.py`](config.example.py) file to `config.py` and update
 ## Running
 
 ```shell
-uv run launcher.py
+uv run launcher.py # or make run
 ```
 
 ## License
