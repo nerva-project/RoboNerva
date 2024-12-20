@@ -15,19 +15,14 @@ from bot import RoboNerva
 
 from config import MONGODB_URI, TELEGRAM_TOKEN
 
-try:
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
+else:
     # noinspection PyUnresolvedReferences
     import uvloop
 
-except ImportError:
-    pass
-
-else:
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
-
-
-if sys.platform == "win32":
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
 async def setup_database() -> motor.motor_asyncio.AsyncIOMotorClient:
