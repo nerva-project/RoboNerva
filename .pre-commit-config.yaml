@@ -1,8 +1,8 @@
 repos:
     -   repo: https://github.com/astral-sh/ruff-pre-commit
-        rev: v0.7.0
+        rev: v0.9.3
         hooks:
             -   id: ruff
-                args: [--select I, --no-fix]
+                args: [--select=I, --no-fix]
             -   id: ruff-format
                 args: [--check]

@@ -71,7 +71,7 @@ class Evaluate(commands.Cog):
         body = _cleanup_code(modal.code.value)
         stdout = io.StringIO()
 
-        to_compile = f'async def func():\n{textwrap.indent(body, "  ")}'
+        to_compile = f"async def func():\n{textwrap.indent(body, '  ')}"
 
         def _paginate(text: str):
             app_index = 0

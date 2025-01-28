@@ -71,8 +71,7 @@ class Network(commands.Cog):
                 embed.set_field_at(
                     3,
                     name="Last Block Timestamp",
-                    value=f"<t:{data['timestamp']}:F> "
-                    f"(<t:{data['timestamp']}:R>)",
+                    value=f"<t:{data['timestamp']}:F> (<t:{data['timestamp']}:R>)",
                 )
 
         await ctx.edit_original_response(embed=embed)
@@ -241,8 +240,7 @@ class Network(commands.Cog):
                 )
                 embed.add_field(
                     name="Timestamp",
-                    value=f"<t:{data['timestamp']}:F> "
-                    f"(<t:{data['timestamp']}:R>)",
+                    value=f"<t:{data['timestamp']}:F> (<t:{data['timestamp']}:R>)",
                 )
                 embed.add_field(
                     name="Hash",
@@ -289,7 +287,7 @@ class Network(commands.Cog):
 
                 embed.add_field(
                     name="Current Annual Inflation Percentage",
-                    value=f"{(new_xnv_per_year/coins) * 100:.3f}%",
+                    value=f"{(new_xnv_per_year / coins) * 100:.3f}%",
                     inline=False,
                 )
 
