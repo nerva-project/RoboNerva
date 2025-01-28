@@ -132,6 +132,34 @@ class AutoMod(commands.Cog):
 
                 return
 
+        for role_id in self.bot.config.ADMIN_ROLE_IDS:
+            role = after.guild.get_role(role_id)
+            for member in role.members:
+                if re.search(member.display_name, after.display_name, re.IGNORECASE):
+                    self.bot.log.info(
+                        f"Banning {after} for having an admins display name - {member.display_name}."
+                    )
+
+                    try:
+                        await after.send(
+                            f"You have been banned from the Nerva community "
+                            f"server for having an admins display name."
+                        )
+
+                    except (discord.Forbidden, discord.errors.Forbidden):
+                        pass
+
+                    await after.ban(reason=f"Blacklisted name match.")
+
+                    await self.bot.automod_hook.send(
+                        f"**{after}** matched against `{member.display_name}`."
+                    )
+                    await self.bot.log_hook.send(
+                        f"**{after}** has been banned for having an admins display name."
+                    )
+
+                    return
+
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
         if message.guild is None:
