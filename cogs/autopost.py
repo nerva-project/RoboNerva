@@ -62,7 +62,6 @@ class AutoPost(commands.Cog):
             embed.description += "\n"
 
         else:
-            """
             try:
                 client = twikit.Client("en-US")
 
@@ -83,8 +82,6 @@ class AutoPost(commands.Cog):
             embed.description = (
                 f"Interact on X:\n\nhttps://x.com/NervaCurrency/status/{post_id}\n\n"
             )
-            """
-            return
 
         embed.description += (
             "Search for crypto related tweets and plug Nerva where appropriate "
