@@ -162,4 +162,3 @@ cython_debug/
 # RoboNerva
 config.py
 test.py
-uv.lock

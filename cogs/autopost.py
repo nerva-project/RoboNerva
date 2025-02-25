@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from datetime import UTC, time, datetime
 
+import twikit
 import aiohttp
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.error import TelegramError
