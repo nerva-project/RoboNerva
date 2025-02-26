@@ -161,4 +161,4 @@ cython_debug/
 
 # RoboNerva
 config.py
-test.py
+cookies.json
