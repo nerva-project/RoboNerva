@@ -2,10 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import asyncio
 from datetime import UTC, time, datetime
 
-import twikit
 import aiohttp
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.error import TelegramError
@@ -64,24 +62,7 @@ class AutoPost(commands.Cog):
             embed.description += "\n"
 
         else:
-            try:
-                async with asyncio.timeout(60):
-                    client = twikit.Client("en-US")
-
-                    await client.login(
-                        auth_info_1=self.bot.config.TWITTER_USERNAME,
-                        auth_info_2=self.bot.config.TWITTER_EMAIL,
-                        password=self.bot.config.TWITTER_PASSWORD,
-                        cookies_file="cookies.json",
-                    )
-
-                    user = await client.get_user_by_screen_name("NervaCurrency")
-                    tweets = await client.get_user_tweets(user.id, "Tweets", count=1)
-
-                    post_id = tweets[0].id
-
-            except (TimeoutError, twikit.TwitterException):
-                post_id = self.bot.config.FALLBACK_TWEET_ID
+            post_id = self.bot.config.FALLBACK_TWEET_ID
 
             embed.description = (
                 f"Interact on X:\n\nhttps://x.com/NervaCurrency/status/{post_id}\n\n"
