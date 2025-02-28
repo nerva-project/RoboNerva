@@ -62,31 +62,35 @@ class AutoPost(commands.Cog):
             embed.description += "\n"
 
         else:
-            post_id = self.bot.config.FALLBACK_TWEET_ID
-
             embed.description = (
-                f"Interact on X:\n\nhttps://x.com/NervaCurrency/status/{post_id}\n\n"
+                f"Interact with some replies that you like:\n"
+                f"https://x.com/NervaCurrency/with_replies\n\n"
             )
 
         embed.description += (
-            "Search for crypto related tweets and plug Nerva where appropriate "
-            "or search for Nerva related posts and interact:\n\nhttps://x.com/search"
-            "?q=(%23Nerva%20OR%20%24XNV)%20OR%20(%40NervaCurrency)&src=typed_query&f=live"
+            "Vote for Nerva and Mascot on CML:\n"
+            "https://coinmarketleague.com/coin/nerva\n"
+            "https://coinmarketleague.com/coin/Official-Mascot-of-Nerva"
         )
 
         view = discord.ui.View()
 
         view.add_item(
             discord.ui.Button(
-                label="CoinMarketLeague",
+                label="CML (Nerva)",
                 url="https://coinmarketleague.com/coin/nerva",
             )
         )
         view.add_item(
             discord.ui.Button(
+                label="CML (Mascot)",
+                url="https://coinmarketleague.com/coin/Official-Mascot-of-Nerva",
+            )
+        )
+        view.add_item(
+            discord.ui.Button(
                 label="X (Twitter)",
-                url="https://x.com/search?q=(%23Nerva%20OR%20%24XNV)%20OR%20"
-                "(%40NervaCurrency)&src=typed_query&f=live",
+                url="https://x.com/NervaCurrency/with_replies",
             )
         )
 
@@ -97,13 +101,16 @@ class AutoPost(commands.Cog):
             keyboard = [
                 [
                     InlineKeyboardButton(
-                        "CoinMarketLeague",
+                        "CML (Nerva)",
                         url="https://coinmarketleague.com/coin/nerva",
                     ),
                     InlineKeyboardButton(
+                        "CML (Mascot)",
+                        url="https://coinmarketleague.com/coin/Official-Mascot-of-Nerva",
+                    ),
+                    InlineKeyboardButton(
                         "X (Twitter)",
-                        url="https://x.com/search?q=(%23Nerva%20OR%20%24XNV)%20OR%20"
-                        "(%40NervaCurrency)&src=typed_query&f=live",
+                        url="https://x.com/NervaCurrency/with_replies",
                     ),
                 ]
             ]
