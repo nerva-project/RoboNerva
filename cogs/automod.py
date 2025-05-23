@@ -135,6 +135,9 @@ class AutoMod(commands.Cog):
         for role_id in self.bot.config.ADMIN_ROLE_IDS:
             role = after.guild.get_role(role_id)
             for member in role.members:
+                if role in after.roles:
+                    return
+
                 if re.search(member.display_name, after.display_name, re.IGNORECASE):
                     self.bot.log.info(
                         f"Banning {after} for having an admins display name - {member.display_name}."
