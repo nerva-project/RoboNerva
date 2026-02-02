@@ -1,7 +1,6 @@
 # RoboNerva
 
 [![Ruff](https://github.com/nerva-project/RoboNerva/actions/workflows/ruff.yml/badge.svg)](https://github.com/nerva-project/RoboNerva/actions/workflows/ruff.yml)
-[![License](https://img.shields.io/github/license/nerva-project/RoboNerva)](LICENSE)
 
 ## Table of Contents
 
@@ -41,13 +40,13 @@ the [discord.py](https://pypi.org/project/discord.py/) library and [MongoDB](htt
 3. Install the dependencies.
 
    ```shell
-   uv sync --no-dev # or make install
+   uv sync --all-extras --no-dev # or make install
    ```
 
 4. (Optional) Set up a development environment by installing the development dependencies and extras.
 
    ```shell
-   uv sync --extra dev # or make install-dev
+   uv sync --all-extras # or make install-dev
    ```
 
 ## Configuration
@@ -62,6 +61,6 @@ uv run launcher.py # or make run
 
 ## License
 
-[GNU General Public License v3.0](LICENSE)
+[![License](https://img.shields.io/github/license/nerva-project/RoboNerva)](LICENSE)
 
-Copyright &copy; 2024 [Sayan "Sn1F3rt" Bhattacharyya](https://sn1f3rt.dev), [The Nerva Project](https://nerva.one)
+Copyright &copy; 2024-present [Sayan "sn1f3rt" Bhattacharyya](https://sn1f3rt.dev), [The Nerva Project](https://nerva.one)

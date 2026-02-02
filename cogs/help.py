@@ -42,11 +42,12 @@ class Help(commands.Cog):
             inline=False,
         )
 
-        embed.add_field(
-            name="Market",
-            value=f"`/coingecko`, `/tradeogre`, `/xeggex`, `/history`",
-            inline=False,
-        )
+        # Temporarily disable market commands until CoinGecko listing is back
+        # embed.add_field(
+        #     name="Market",
+        #     value=f"`/coingecko`, `/tradeogre`, `/xeggex`, `/history`",
+        #     inline=False,
+        # )
 
         embed.add_field(
             name="Network",

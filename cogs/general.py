@@ -85,7 +85,7 @@ class General(commands.Cog):
         )
         view.add_item(
             discord.ui.Button(
-                label="GitHub", url="https://github.com/nerva-project", row=1
+                label="GitHub", url="https://github.com/nerva-project", row=0
             )
         )
         view.add_item(
@@ -95,8 +95,13 @@ class General(commands.Cog):
         )
         view.add_item(
             discord.ui.Button(
+                label="Reddit", url="https://www.reddit.com/r/NervaCrypto", row=1
+            )
+        )
+        view.add_item(
+            discord.ui.Button(
                 label="YouTube",
-                url="https://www.youtube.com/channel/UC84v_i1iNZrLUUA9XbhuCAQ",
+                url="https://www.youtube.com/@nervapro",
                 row=1,
             )
         )
@@ -135,20 +140,20 @@ class General(commands.Cog):
 
         view = discord.ui.View()
 
-        for pair in self.bot.config.TRADEOGRE_MARKET_PAIRS:
+        for pair in self.bot.config.NONKYC_MARKET_PAIRS:
             view.add_item(
                 discord.ui.Button(
-                    label=f"TradeOgre ({pair})",
-                    url=f"https://tradeogre.com/exchange/{pair}",
+                    label=f"NonKYC ({pair})",
+                    url=f"https://nonkyc.io/market/{pair.replace('-', '_')}?ref={self.bot.config.NONKYC_REFERRAL_CODE}",
                     row=0,
                 )
             )
 
-        for pair in self.bot.config.XEGGEX_MARKET_PAIRS:
+        for pair in self.bot.config.CEXSWAP_MARKET_PAIRS:
             view.add_item(
                 discord.ui.Button(
-                    label=f"XeggeX ({pair})",
-                    url=f"https://xeggex.com/market/{pair.replace('-', '_')}",
+                    label=f"CEXSwap ({pair})",
+                    url=f"https://cexswap.cc/trade/{pair}",
                     row=1,
                 )
             )
@@ -310,8 +315,7 @@ class General(commands.Cog):
         view.add_item(
             discord.ui.Button(
                 label="Utils: Quicksync",
-                url="https://github.com/nerva-project/nerva/releases/download/"
-                f"{cli_version}/p2pstate.nerva.v11.bin",
+                url="https://nerva.one/quicksync/quicksync.raw",
                 row=3,
             )
         )

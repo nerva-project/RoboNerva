@@ -50,8 +50,12 @@ class AutoPost(commands.Cog):
         collection = self.bot.db.get_collection("autopost_tweet_links")
         data = await collection.find_one({})
 
+        embed.description = (
+            "Vote for Nerva on CML:\nhttps://coinmarketleague.com/coin/nerva\n\n"
+        )
+
         if data:
-            embed.description = f"Interact on X:\n\n{data['tweet_link_1']}\n"
+            embed.description += f"Interact on X:\n\n{data['tweet_link_1']}\n"
 
             if data["tweet_link_2"]:
                 embed.description += f"{data['tweet_link_2']}\n"
@@ -62,16 +66,17 @@ class AutoPost(commands.Cog):
             embed.description += "\n"
 
         else:
-            embed.description = (
+            embed.description += (
                 f"Interact with some replies that you like:\n"
                 f"https://x.com/NervaCurrency/with_replies\n\n"
             )
 
         embed.description += (
-            "Vote for Nerva and Mascot on CML:\n"
-            "https://coinmarketleague.com/coin/nerva\n"
-            "https://coinmarketleague.com/coin/Official-Mascot-of-Nerva"
+            "Join the discussion on Reddit:\n"
+            "https://www.reddit.com/r/NervaCrypto\n\n"
         )
+
+        embed.description += "Thank you for supporting Nerva! \U0001f499"
 
         view = discord.ui.View()
 
@@ -83,14 +88,14 @@ class AutoPost(commands.Cog):
         )
         view.add_item(
             discord.ui.Button(
-                label="CML (Mascot)",
-                url="https://coinmarketleague.com/coin/Official-Mascot-of-Nerva",
+                label="X (Twitter)",
+                url="https://x.com/NervaCurrency/with_replies",
             )
         )
         view.add_item(
             discord.ui.Button(
-                label="X (Twitter)",
-                url="https://x.com/NervaCurrency/with_replies",
+                label="Reddit",
+                url="https://www.reddit.com/r/NervaCrypto",
             )
         )
 
@@ -105,12 +110,12 @@ class AutoPost(commands.Cog):
                         url="https://coinmarketleague.com/coin/nerva",
                     ),
                     InlineKeyboardButton(
-                        "CML (Mascot)",
-                        url="https://coinmarketleague.com/coin/Official-Mascot-of-Nerva",
-                    ),
-                    InlineKeyboardButton(
                         "X (Twitter)",
                         url="https://x.com/NervaCurrency/with_replies",
+                    ),
+                    InlineKeyboardButton(
+                        "Reddit",
+                        url="https://www.reddit.com/r/NervaCrypto",
                     ),
                 ]
             ]
@@ -232,11 +237,13 @@ class AutoPost(commands.Cog):
 
     def cog_load(self) -> None:
         self._autopost_vote_reminder.start()
-        self._autopost_price_update.start()
+        # Temporarily disabling price update autoposts until CoinGecko listing is back
+        # self._autopost_price_update.start()
 
     def cog_unload(self) -> None:
         self._autopost_vote_reminder.cancel()
-        self._autopost_price_update.cancel()
+        # Temporarily disabling price update autoposts until CoinGecko listing is back
+        # self._autopost_price_update.cancel()
 
     @app_commands.command(name="upload")
     @app_commands.guilds(COMMUNITY_GUILD_ID)
