@@ -8,6 +8,7 @@ from discord import ui
 from config import (
     TIPBOT_USER_ID,
     TIPBOT_CHANNEL_ID,
+    WELCOME_TIP_AMOUNT,
     VERIFIED_USER_ROLE_ID,
     UNVERIFIED_USER_ROLE_ID,
 )
@@ -143,9 +144,9 @@ class VerificationModal(ui.Modal, title="User Verification"):
             tipbot_channel = ctx.guild.get_channel(TIPBOT_CHANNEL_ID)
 
             await ctx.channel.send(
-                content=f"{tipbot.mention} tip 1.00 XNV {ctx.user.mention}. "
+                content=f"{tipbot.mention} tip {WELCOME_TIP_AMOUNT} XNV {ctx.user.mention}. "
                 f"Welcome to the <:nerva:1274417479606603776> community server. "
-                f"You're now verified. Here's 1 XNV to get you started. "
+                f"You're now verified. Here's 0.25 XNV to get you started. "
                 f"Head over to {tipbot_channel.mention} for help with these funds. "
                 f"Enjoy your stay!"
             )
