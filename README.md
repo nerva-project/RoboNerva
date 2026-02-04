@@ -19,7 +19,7 @@ the [discord.py](https://pypi.org/project/discord.py/) library and [MongoDB](htt
 ## Prerequisites
 
 - Git
-- Python >= 3.8
+- Python >= 3.10
 - [`uv` package manager](https://docs.astral.sh/uv/getting-started/installation/)
 - [MongoDB Atlas](https://www.mongodb.com/products/platform/atlas-database) or any other MongoDB instance
 
