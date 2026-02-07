@@ -145,8 +145,8 @@ class VerificationModal(ui.Modal, title="User Verification"):
 
             await ctx.channel.send(
                 content=f"{tipbot.mention} tip {WELCOME_TIP_AMOUNT} XNV {ctx.user.mention}. "
-                f"Welcome to the <:nerva:1274417479606603776> community server. "
-                f"You're now verified. Here's 0.25 XNV to get you started. "
+                f"Welcome to the <:nerva:1274417479606603776> community server, {ctx.user.mention}! "
+                f"You're now verified. Here's {WELCOME_TIP_AMOUNT} XNV to get you started. "
                 f"Head over to {tipbot_channel.mention} for help with these funds. "
                 f"Enjoy your stay!"
             )
@@ -162,9 +162,9 @@ class VerificationModal(ui.Modal, title="User Verification"):
             tipbot_channel = ctx.guild.get_channel(TIPBOT_CHANNEL_ID)
 
             await ctx.channel.send(
-                content=f"{tipbot.mention} tip 1.00 XNV {ctx.user.mention}. "
-                f"Welcome, {ctx.user.mention}! You're now verified. "
-                f"Here's 1 XNV to get you started. "
+                content=f"{tipbot.mention} tip {WELCOME_TIP_AMOUNT} XNV {ctx.user.mention}. "
+                f"Welcome to the <:nerva:1274417479606603776> community server, {ctx.user.mention}! "
+                f"You're now verified. Here's {WELCOME_TIP_AMOUNT} XNV to get you started. "
                 f"Head over to {tipbot_channel.mention} for help with these funds. "
                 f"Enjoy your stay!"
             )
