@@ -14,8 +14,7 @@ from discord.ext.menus.views import ViewMenuPages
 
 from utils.cd import cooldown
 from utils.paginators import (
-    XeggeXPaginatorSource,
-    TradeOgrePaginatorSource,
+    NervaExchangePaginatorSource,
     HistoricalPricePaginatorSource,
 )
 
@@ -26,8 +25,20 @@ from config import COMMUNITY_GUILD_ID, MARKET_HISTORY_HOURS_AFTER_UTC
 
 
 class Market(commands.Cog):
+    BASE_API_URL = "https://nervaapi.sn1f3rt.dev/market"
+
     def __init__(self, bot: RoboNerva):
         self.bot: RoboNerva = bot
+
+    async def _fetch_market(self, exchange: str) -> Dict[str, Any]:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f"{self.BASE_API_URL}/{exchange}") as res:
+                data = await res.json()
+
+                if data.get("status") != "success":
+                    raise RuntimeError(f"API error for {exchange}")
+
+                return data
 
     @tasks.loop(time=time(hour=MARKET_HISTORY_HOURS_AFTER_UTC))
     async def _store_historical_data(self):
@@ -178,65 +189,42 @@ class Market(commands.Cog):
 
         await ctx.edit_original_response(embed=embed, view=view)
 
-    @app_commands.command(name="tradeogre")
+    @app_commands.command(name="nonkyc")
     @app_commands.guilds(COMMUNITY_GUILD_ID)
     @app_commands.checks.dynamic_cooldown(cooldown)
-    async def _tradeogre(self, ctx: discord.Interaction):
-        """Shows the current Nerva market data from TradeOgre."""
+    async def _nonkyc(self, ctx: discord.Interaction):
+        """Shows the current Nerva market data from NonKYC."""
         # noinspection PyUnresolvedReferences
         await ctx.response.defer(thinking=True)
 
+        api_data = await self._fetch_market("nonkyc")
+
         market_data: List[Dict] = list()
 
-        for pair in self.bot.config.TRADEOGRE_MARKET_PAIRS:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(
-                    f"https://tradeogre.com/api/v1/ticker/{pair.lower()}"
-                ) as res:
-                    data: Dict[str, Any] = await res.json(content_type=None)
+        for pair in self.bot.config.NONKYC_MARKET_PAIRS:
+            entry = api_data["result"][pair]
 
-                    if "error" in data:
-                        continue
+            market_data.append(
+                {
+                    "pair": pair,
+                    "last_price": entry["last_price"],
+                    "bid": entry["bid"],
+                    "ask": entry["ask"],
+                    "volume": entry["volume"],
+                    "high": entry["high"],
+                    "low": entry["low"],
+                    "last_trade": int(parse(entry["last_trade"]).timestamp()),
+                }
+            )
 
-                    else:
-                        last_price: str
-                        bid: str
-                        ask: str
-                        volume: str
-                        high: str
-                        low: str
+        pages = NervaExchangePaginatorSource(
+            entries=market_data,
+            ctx=ctx,
+            exchange_name="NonKYC",
+            exchange_urls=self.bot.config.NONKYC_MARKET_LINKS,
+            thumbnail_url="https://nonkyc.io/images/mediakit/NonKYC-logo-384.png",
+        )
 
-                        if pair.endswith("BTC"):
-                            last_price = (
-                                f"{round(float(data['price']) * 100_000_000)} sat"
-                            )
-                            bid = f"{round(float(data['bid']) * 100_000_000)} sat"
-                            ask = f"{round(float(data['ask']) * 100_000_000)} sat"
-                            volume = f"{float(data['volume'])} BTC"
-                            high = f"{round(float(data['high']) * 100_000_000)} sat"
-                            low = f"{round(float(data['low']) * 100_000_000)} sat"
-
-                        else:
-                            last_price = f"${round(float(data['price']), 4)}"
-                            bid = f"${round(float(data['bid']), 4)}"
-                            ask = f"${round(float(data['ask']), 4)}"
-                            volume = f"${round(float(data['volume']), 2)}"
-                            high = f"${round(float(data['high']), 4)}"
-                            low = f"${round(float(data['low']), 4)}"
-
-                        market_data.append(
-                            {
-                                "pair": pair,
-                                "last_price": last_price,
-                                "bid": bid,
-                                "ask": ask,
-                                "volume": volume,
-                                "high": high,
-                                "low": low,
-                            }
-                        )
-
-        pages = TradeOgrePaginatorSource(entries=market_data, ctx=ctx)
         paginator = ViewMenuPages(
             source=pages,
             timeout=300,
@@ -247,91 +235,39 @@ class Market(commands.Cog):
         await ctx.edit_original_response(content="\U0001f44c")
         await paginator.start(ctx)
 
-    @app_commands.command(name="xeggex")
+    @app_commands.command(name="cexswap")
     @app_commands.guilds(COMMUNITY_GUILD_ID)
     @app_commands.checks.dynamic_cooldown(cooldown)
-    async def _xeggex(self, ctx: discord.Interaction):
-        """Shows the current Nerva market data from Xeggex."""
+    async def _cexswap(self, ctx: discord.Interaction):
+        """Shows the current Nerva market data from CexSwap."""
         # noinspection PyUnresolvedReferences
         await ctx.response.defer(thinking=True)
 
-        embed = discord.Embed(colour=self.bot.embed_color)
-        embed.title = "XNV-USDT on Xeggex"
-
-        embed.set_author(name="RoboNerva", icon_url=self.bot.user.avatar.url)
-        embed.set_thumbnail(
-            url="https://encrypted-tbn0.gstatic.com/images?"
-            "q=tbn:ANd9GcQge9tw8HHcbwBXNALMQvysPoL6s-bFhJjA3g&s"
-        )
+        api_data = await self._fetch_market("cexswap")
 
         market_data: List[Dict] = list()
 
-        for pair in self.bot.config.XEGGEX_MARKET_PAIRS:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(
-                    f"https://api.xeggex.com/api/v2/market/getbysymbol/{pair.replace('-', '_')}"
-                ) as res:
-                    data: Dict[str, Any] = await res.json()
+        for pair in self.bot.config.CEXSWAP_MARKET_PAIRS:
+            entry = api_data["result"][pair]
 
-                    if "error" in data:
-                        continue
+            market_data.append(
+                {
+                    "pair": pair,
+                    "last_price": entry["last_price"],
+                    "volume": entry["volume"],
+                    "high": entry["high"],
+                    "low": entry["low"],
+                }
+            )
 
-                    else:
-                        last_price: str
-                        bid: str
-                        ask: str
-                        volume: str
-                        high: str
-                        low: str
-                        last_trade: str
+        pages = NervaExchangePaginatorSource(
+            entries=market_data,
+            ctx=ctx,
+            exchange_name="CexSwap",
+            exchange_urls=self.bot.config.CEXSWAP_MARKET_LINKS,
+            thumbnail_url="https://cexswap.cc/icons/favicon-32x32.png",
+        )
 
-                        if pair.endswith("BTC"):
-                            last_price = f"{round(float(data['lastPrice']) * 100_000_000)} sat"
-                            bid = (
-                                f"{round(float(data['bestBid']) * 100_000_000)} sat"
-                            )
-                            ask = (
-                                f"{round(float(data['bestAsk']) * 100_000_000)} sat"
-                            )
-                            volume = f"{float(data['volumeSecondary'])} BTC"
-                            high = f"{round(float(data['highPrice']) * 100_000_000)} sat"
-                            low = (
-                                f"{round(float(data['lowPrice']) * 100_000_000)} sat"
-                            )
-                            last_trade = data["lastTradeAt"] // 1000
-
-                        elif pair.endswith("USDT") or pair.endswith("USDC"):
-                            last_price = f"${round(float(data['lastPrice']), 4)}"
-                            bid = f"${round(float(data['bestBid']), 4)}"
-                            ask = f"${round(float(data['bestAsk']), 4)}"
-                            volume = f"${round(float(data['volumeSecondary']), 2)}"
-                            high = f"${round(float(data['highPrice']), 4)}"
-                            low = f"${round(float(data['lowPrice']), 4)}"
-                            last_trade = data["lastTradeAt"] // 1000
-
-                        else:
-                            last_price = f"{round(float(data['lastPrice']), 4)} XPE"
-                            bid = f"{round(float(data['bestBid']), 4)} XPE"
-                            ask = f"{round(float(data['bestAsk']), 4)} XPE"
-                            volume = f"{float(data['volumeSecondary'])} XPE"
-                            high = f"{round(float(data['highPrice']), 4)} XPE"
-                            low = f"{round(float(data['lowPrice']), 4)} XPE"
-                            last_trade = data["lastTradeAt"] // 1000
-
-                        market_data.append(
-                            {
-                                "pair": pair,
-                                "last_price": last_price,
-                                "bid": bid,
-                                "ask": ask,
-                                "volume": volume,
-                                "high": high,
-                                "low": low,
-                                "last_trade": last_trade,
-                            }
-                        )
-
-        pages = XeggeXPaginatorSource(entries=market_data, ctx=ctx)
         paginator = ViewMenuPages(
             source=pages,
             timeout=300,

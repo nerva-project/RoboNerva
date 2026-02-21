@@ -51,7 +51,9 @@ class HistoricalPricePaginatorSource(ListPageSource):
                 inline=False,
             )
 
-        embed.set_footer(text=f"Page {page_no}/{self.total_pages}")
+        embed.set_footer(
+            text=f"Page {page_no}/{self.total_pages} | Use \u25c0\ufe0f and \u25b6\ufe0f to navigate through the entries & \u23f9\ufe0f to stop the pagination"
+        )
 
         return embed
 
@@ -59,79 +61,76 @@ class HistoricalPricePaginatorSource(ListPageSource):
         return True
 
 
-class TradeOgrePaginatorSource(ListPageSource):
+class NervaExchangePaginatorSource(ListPageSource):
     def __init__(
         self,
         entries: list,
         ctx: discord.Interaction,
+        exchange_name: str,
+        exchange_urls: dict[str, Any],
+        thumbnail_url: str,
         per_page: Optional[int] = 1,
     ):
         super().__init__(list(enumerate(entries, 1)), per_page=per_page)
 
         self.ctx = ctx
+        self.exchange_name = exchange_name
+        self.exchange_urls = exchange_urls
+        self.thumbnail_url = thumbnail_url
         self.total_pages = len(entries)
 
     async def format_page(self, menu: Menu, item: Any) -> discord.Embed:
         page_no, item = item
 
         embed = discord.Embed(colour=EMBED_COLOR)
-        embed.title = f"**{item['pair']}** on TradeOgre"
-        embed.url = f"https://tradeogre.com/exchange/{item['pair']}"
+
+        embed.title = f"{item['pair']} on {self.exchange_name}"
+        embed.url = self.exchange_urls[item["pair"]]
 
         embed.set_author(name="RoboNerva", icon_url=self.ctx.guild.me.avatar.url)
-        embed.set_thumbnail(
-            url="https://nerva.one/content/images/tradeogre-logo.png"
+        embed.set_thumbnail(url=self.thumbnail_url)
+
+        embed.add_field(
+            name="Last Price",
+            value=item.get("last_price", "N/A"),
         )
 
-        embed.add_field(name="Last Price", value=item["last_price"])
-        embed.add_field(name="Bid", value=item["bid"])
-        embed.add_field(name="Ask", value=item["ask"])
-        embed.add_field(name="Volume", value=item["volume"])
-        embed.add_field(name="High", value=item["high"])
-        embed.add_field(name="Low", value=item["low"])
+        if item.get("bid"):
+            embed.add_field(
+                name="Bid",
+                value=item["bid"],
+            )
 
-        embed.set_footer(text=f"Entry {page_no}/{self.total_pages}")
+        if item.get("ask"):
+            embed.add_field(
+                name="Ask",
+                value=item["ask"],
+            )
 
-        return embed
-
-    def is_paginating(self) -> bool:
-        return True
-
-
-class XeggeXPaginatorSource(ListPageSource):
-    def __init__(
-        self,
-        entries: list,
-        ctx: discord.Interaction,
-        per_page: Optional[int] = 1,
-    ):
-        super().__init__(list(enumerate(entries, 1)), per_page=per_page)
-
-        self.ctx = ctx
-        self.total_pages = len(entries)
-
-    async def format_page(self, menu: Menu, item: Any) -> discord.Embed:
-        page_no, item = item
-
-        embed = discord.Embed(colour=EMBED_COLOR)
-        embed.title = f"**{item['pair']}** on XeggeX"
-        embed.url = f"https://xeggex.com/market/{item['pair']}"
-
-        embed.set_author(name="RoboNerva", icon_url=self.ctx.guild.me.avatar.url)
-        embed.set_thumbnail(
-            url="https://encrypted-tbn0.gstatic.com/images?"
-            "q=tbn:ANd9GcQge9tw8HHcbwBXNALMQvysPoL6s-bFhJjA3g&s"
+        embed.add_field(
+            name="Volume",
+            value=item.get("volume", "N/A"),
         )
 
-        embed.add_field(name="Last Price", value=item["last_price"])
-        embed.add_field(name="Bid", value=item["bid"])
-        embed.add_field(name="Ask", value=item["ask"])
-        embed.add_field(name="Volume", value=item["volume"])
-        embed.add_field(name="High", value=item["high"])
-        embed.add_field(name="Low", value=item["low"])
-        embed.add_field(name="Last Trade", value=f"<t:{item['last_trade']}:R>")
+        embed.add_field(
+            name="High",
+            value=item.get("high", "N/A"),
+        )
 
-        embed.set_footer(text=f"Entry {page_no}/{self.total_pages}")
+        embed.add_field(
+            name="Low",
+            value=item.get("low", "N/A"),
+        )
+
+        if item.get("last_trade"):
+            embed.add_field(
+                name="Last Trade",
+                value=f"<t:{item['last_trade']}:R>",
+            )
+
+        embed.set_footer(
+            text=f"Page {page_no}/{self.total_pages} | Use \u25c0\ufe0f and \u25b6\ufe0f to navigate through the entries & \u23f9\ufe0f to stop the pagination"
+        )
 
         return embed
 
