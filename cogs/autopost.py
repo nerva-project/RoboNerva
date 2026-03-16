@@ -54,6 +54,8 @@ class AutoPost(commands.Cog):
             "Vote for Nerva on CML:\nhttps://coinmarketleague.com/coin/nerva\n\n"
         )
 
+        embed.description += "Complete daily quests and earn XNV on Nerva Quest:\nhttps://nervaquest.com\n\n"
+
         if data:
             embed.description += f"Interact on X:\n\n{data['tweet_link_1']}\n"
 
@@ -82,8 +84,14 @@ class AutoPost(commands.Cog):
 
         view.add_item(
             discord.ui.Button(
-                label="CML (Nerva)",
+                label="CoinMarketLeague",
                 url="https://coinmarketleague.com/coin/nerva",
+            )
+        )
+        view.add_item(
+            discord.ui.Button(
+                label="Nerva Quest",
+                url="https://nervaquest.com",
             )
         )
         view.add_item(
@@ -106,8 +114,12 @@ class AutoPost(commands.Cog):
             keyboard = [
                 [
                     InlineKeyboardButton(
-                        "CML (Nerva)",
+                        "CoinMarketLeague",
                         url="https://coinmarketleague.com/coin/nerva",
+                    ),
+                    InlineKeyboardButton(
+                        "Nerva Quest",
+                        url="https://nervaquest.com",
                     ),
                     InlineKeyboardButton(
                         "X (Twitter)",
