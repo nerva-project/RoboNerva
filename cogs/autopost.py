@@ -139,11 +139,6 @@ class AutoPost(commands.Cog):
                 reply_markup=reply_markup,
             )
 
-            await self.bot.tg.pin_chat_message(
-                chat_id=self.bot.config.TELEGRAM_CHAT_ID,
-                message_id=message.message_id,
-            )
-
         except TelegramError as e:
             self.bot.log.error(f"Telegram error: {e}")
 
