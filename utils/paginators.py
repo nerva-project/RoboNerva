@@ -122,6 +122,12 @@ class NervaExchangePaginatorSource(ListPageSource):
             value=item.get("low", "N/A"),
         )
 
+        if item.get("change_24h"):
+            embed.add_field(
+                name="Change (24h)",
+                value=item["change_24h"],
+            )
+
         if item.get("last_trade"):
             embed.add_field(
                 name="Last Trade",
