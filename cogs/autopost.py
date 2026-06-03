@@ -54,7 +54,7 @@ class AutoPost(commands.Cog):
             "Vote for Nerva on CML:\nhttps://coinmarketleague.com/coin/nerva\n\n"
         )
 
-        embed.description += "Complete daily quests and earn XNV on Nerva Quest:\nhttps://nervaquest.com\n\n"
+        embed.description += "Complete daily quests and earn XNV:\n• https://nervaquest.com\n• https://coinquests.net/nerva\n\n"
 
         if data:
             embed.description += f"Interact on X:\n\n{data['tweet_link_1']}\n"
@@ -86,24 +86,35 @@ class AutoPost(commands.Cog):
             discord.ui.Button(
                 label="CoinMarketLeague",
                 url="https://coinmarketleague.com/coin/nerva",
+                row=0,
             )
         )
         view.add_item(
             discord.ui.Button(
                 label="Nerva Quest",
                 url="https://nervaquest.com",
+                row=0,
+            )
+        )
+        view.add_item(
+            discord.ui.Button(
+                label="Coin Quest",
+                url="https://coinquests.net/nerva",
+                row=0,
             )
         )
         view.add_item(
             discord.ui.Button(
                 label="X (Twitter)",
                 url="https://x.com/NervaCurrency/with_replies",
+                row=1,
             )
         )
         view.add_item(
             discord.ui.Button(
                 label="Reddit",
                 url="https://www.reddit.com/r/NervaCrypto",
+                row=1,
             )
         )
 
@@ -122,6 +133,12 @@ class AutoPost(commands.Cog):
                         url="https://nervaquest.com",
                     ),
                     InlineKeyboardButton(
+                        "Coin Quest",
+                        url="https://coinquests.net/nerva",
+                    ),
+                ],
+                [
+                    InlineKeyboardButton(
                         "X (Twitter)",
                         url="https://x.com/NervaCurrency/with_replies",
                     ),
@@ -129,7 +146,7 @@ class AutoPost(commands.Cog):
                         "Reddit",
                         url="https://www.reddit.com/r/NervaCrypto",
                     ),
-                ]
+                ],
             ]
             reply_markup = InlineKeyboardMarkup(keyboard)
 
