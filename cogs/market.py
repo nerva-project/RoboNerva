@@ -323,48 +323,6 @@ class Market(commands.Cog):
         await ctx.edit_original_response(content="\U0001f44c")
         await paginator.start(ctx)
 
-    @app_commands.command(name="klingex")
-    @app_commands.guilds(COMMUNITY_GUILD_ID)
-    @app_commands.checks.dynamic_cooldown(cooldown)
-    async def _klingex(self, ctx: discord.Interaction):
-        """Shows the current Nerva market data from KlingEx."""
-        # noinspection PyUnresolvedReferences
-        await ctx.response.defer(thinking=True)
-
-        api_data = await self._fetch_market("klingex")
-
-        market_data: List[Dict] = list()
-
-        for pair in self.bot.config.KLINGEX_MARKET_PAIRS:
-            entry = api_data["result"][pair]
-
-            market_data.append(
-                {
-                    "pair": pair,
-                    "last_price": entry["last_price"],
-                    "volume": entry["volume"],
-                    "change_24h": entry["change_24h_pct"],
-                }
-            )
-
-        pages = NervaExchangePaginatorSource(
-            entries=market_data,
-            ctx=ctx,
-            exchange_name="KlingEx",
-            exchange_urls=self.bot.config.KLINGEX_MARKET_LINKS,
-            thumbnail_url="https://klingex.io/symbol.svg",
-        )
-
-        paginator = ViewMenuPages(
-            source=pages,
-            timeout=300,
-            delete_message_after=False,
-            clear_reactions_after=True,
-        )
-
-        await ctx.edit_original_response(content="\U0001f44c")
-        await paginator.start(ctx)
-
     @app_commands.command(name="history")
     @app_commands.guilds(COMMUNITY_GUILD_ID)
     @app_commands.checks.dynamic_cooldown(cooldown)

@@ -167,15 +167,6 @@ class General(commands.Cog):
                 )
             )
 
-        for pair in self.bot.config.KLINGEX_MARKET_PAIRS:
-            view.add_item(
-                discord.ui.Button(
-                    label=f"KlingEx ({pair})",
-                    url=self.bot.config.KLINGEX_MARKET_LINKS[pair],
-                    row=2,
-                )
-            )
-
         await ctx.edit_original_response(
             content="Here are the links to various Nerva trading pairs!", view=view
         )
